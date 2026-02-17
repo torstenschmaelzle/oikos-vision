@@ -8,34 +8,24 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 150 10% 12%;
-
     --card: 0 0% 100%;
     --card-foreground: 150 10% 12%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 150 10% 12%;
-
     --primary: 152 60% 38%;
     --primary-foreground: 0 0% 100%;
-
     --secondary: 145 30% 95%;
     --secondary-foreground: 150 10% 12%;
-
     --muted: 140 20% 96%;
     --muted-foreground: 150 8% 46%;
-
     --accent: 152 45% 92%;
     --accent-foreground: 152 60% 28%;
-
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-
     --border: 145 15% 90%;
     --input: 145 15% 90%;
     --ring: 152 60% 38%;
-
     --radius: 0.75rem;
-
     --sidebar-background: 145 20% 98%;
     --sidebar-foreground: 150 10% 20%;
     --sidebar-primary: 152 60% 38%;
@@ -45,7 +35,6 @@
     --sidebar-border: 145 15% 90%;
     --sidebar-ring: 152 60% 38%;
 
-    /* Custom tokens */
     --gradient-primary: linear-gradient(135deg, hsl(152 60% 38%), hsl(162 55% 45%));
     --gradient-hero: linear-gradient(160deg, hsl(145 20% 98%) 0%, hsl(152 40% 95%) 50%, hsl(145 20% 98%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(145 20% 98%) 100%);
@@ -110,33 +99,14 @@
     -webkit-backdrop-filter: blur(12px);
   }
 
-  .shadow-soft {
-    box-shadow: var(--shadow-soft);
-  }
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-card { box-shadow: var(--shadow-card); }
+  .shadow-elevated { box-shadow: var(--shadow-elevated); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
 
-  .shadow-card {
-    box-shadow: var(--shadow-card);
-  }
-
-  .shadow-elevated {
-    box-shadow: var(--shadow-elevated);
-  }
-
-  .shadow-glow {
-    box-shadow: var(--shadow-glow);
-  }
-
-  .gradient-primary {
-    background: var(--gradient-primary);
-  }
-
-  .gradient-hero {
-    background: var(--gradient-hero);
-  }
-
-  .gradient-card {
-    background: var(--gradient-card);
-  }
+  .gradient-primary { background: var(--gradient-primary); }
+  .gradient-hero { background: var(--gradient-hero); }
+  .gradient-card { background: var(--gradient-card); }
 
   .text-gradient {
     background: var(--gradient-primary);
@@ -144,6 +114,79 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+}
+
+/* Hero text gradient - green to gold on dark bg */
+.hero-text-gradient {
+  background: linear-gradient(135deg, hsl(152, 70%, 55%), hsl(48, 90%, 65%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hero vignette */
+.hero-vignette {
+  background: radial-gradient(ellipse at center, transparent 30%, hsla(150, 30%, 5%, 0.4) 100%);
+}
+
+/* Animated gradient fallback for hero */
+.hero-animated-gradient {
+  background: linear-gradient(135deg,
+    hsl(152, 30%, 25%) 0%,
+    hsl(162, 40%, 35%) 25%,
+    hsl(145, 25%, 20%) 50%,
+    hsl(152, 35%, 30%) 75%,
+    hsl(162, 30%, 25%) 100%
+  );
+  background-size: 400% 400%;
+  animation: heroGradientShift 12s ease infinite;
+}
+
+@keyframes heroGradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Topographic pattern */
+.topo-pattern {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 60px,
+      hsl(152, 30%, 80%, 0.12) 60px,
+      hsl(152, 30%, 80%, 0.12) 61px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 60px,
+      hsl(152, 30%, 80%, 0.08) 60px,
+      hsl(152, 30%, 80%, 0.08) 61px
+    );
+}
+
+/* Noise overlay */
+.noise-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  pointer-events: none;
+}
+
+/* Animated blobs */
+.animated-blob {
+  animation: blobFloat 20s ease-in-out infinite;
+}
+.animated-blob-2 {
+  animation: blobFloat 25s ease-in-out infinite reverse;
+}
+
+@keyframes blobFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -20px) scale(1.05); }
+  50% { transform: translate(-20px, 20px) scale(0.95); }
+  75% { transform: translate(15px, 10px) scale(1.02); }
 }
 
 /* Leaflet overrides */
@@ -165,19 +208,18 @@
 }
 
 /* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: hsl(145 20% 96%); }
+::-webkit-scrollbar-thumb { background: hsl(145 15% 80%); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(152 30% 60%); }
 
-::-webkit-scrollbar-track {
-  background: hsl(145 20% 96%);
-}
-
-::-webkit-scrollbar-thumb {
-  background: hsl(145 15% 80%);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(152 30% 60%);
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animated-blob,
+  .animated-blob-2 {
+    animation: none;
+  }
+  .hero-animated-gradient {
+    animation: none;
+  }
 }

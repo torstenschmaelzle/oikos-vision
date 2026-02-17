@@ -3,86 +3,141 @@ import MapView from "@/components/map/MapView";
 import SelectionToolbar from "@/components/map/SelectionToolbar";
 import FiltersPanel from "@/components/map/FiltersPanel";
 import ResultsList from "@/components/map/ResultsList";
-import { motion } from "framer-motion";
-import { AlertTriangle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { AlertTriangle, X, Building2 } from "lucide-react";
 
 export default function MapPage() {
   const state = useMapState();
   const anyLoading = state.initialLoading || state.cantonLoading || state.gemeindeLoading;
 
+  const selectedBuilding = state.selectedEgid
+    ? state.filteredBuildings.find((b) => b.bdg_egid === state.selectedEgid)
+    : null;
+
   return (
-    <div className="flex flex-1 h-[calc(100vh-4rem)] overflow-hidden">
-      {/* Map */}
-      <div className="flex-1 p-3">
-        <MapView
-          cantonsGeo={state.cantonsGeo}
-          selectedCantonGeo={state.selectedCantonGeo}
-          gemeindenGeo={state.gemeindenGeo}
-          selectedGemeindeGeo={state.selectedGemeindeGeo}
-          buildings={state.filteredBuildings}
-          buildingRoofs={state.buildingRoofs}
-          selectedEgid={state.selectedEgid}
-          onSelectBuilding={state.selectBuilding}
-          loading={anyLoading || state.buildingLoading}
-        />
+    <div className="flex flex-col min-h-[calc(100vh-4rem)]">
+      {/* Top section: Map + Sidebar */}
+      <div className="flex flex-1 min-h-[60vh] max-h-[75vh]">
+        {/* Map */}
+        <div className="flex-1 p-3">
+          <MapView
+            cantonsGeo={state.cantonsGeo}
+            selectedCantonGeo={state.selectedCantonGeo}
+            gemeindenGeo={state.gemeindenGeo}
+            selectedGemeindeGeo={state.selectedGemeindeGeo}
+            buildings={state.filteredBuildings}
+            buildingRoofs={state.buildingRoofs}
+            selectedEgid={state.selectedEgid}
+            onSelectBuilding={state.selectBuilding}
+            loading={anyLoading || state.buildingLoading}
+          />
+        </div>
+
+        {/* Sidebar — controls only */}
+        <motion.aside
+          initial={{ x: 40, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="w-[320px] border-l border-border/50 bg-card overflow-y-auto shrink-0"
+        >
+          <div className="p-4 space-y-5">
+            <AnimatePresence>
+              {state.error && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-xs"
+                >
+                  <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                  <span>{state.error}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {state.initialLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="h-10 rounded-lg bg-muted animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <>
+                <SelectionToolbar
+                  cantons={state.cantons}
+                  gemeinden={state.gemeinden}
+                  selectedCantonId={state.selectedCantonId}
+                  selectedBfs={state.selectedBfs}
+                  limit={state.limit}
+                  onSelectCanton={state.selectCanton}
+                  onSelectGemeinde={state.selectGemeinde}
+                  onSetLimit={state.setLimit}
+                  disabled={state.cantonLoading || state.gemeindeLoading}
+                />
+
+                <div className="h-px bg-border" />
+
+                <FiltersPanel filters={state.filters} onChange={state.setFilters} />
+              </>
+            )}
+          </div>
+        </motion.aside>
       </div>
 
-      {/* Sidebar */}
-      <motion.aside
-        initial={{ x: 40, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.4 }}
-        className="w-[340px] border-l border-border/50 bg-card overflow-y-auto"
-      >
-        <div className="p-4 space-y-5">
-          {state.error && (
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-xs">
-              <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
-              <span>{state.error}</span>
+      {/* Selected building mini-header */}
+      <AnimatePresence>
+        {selectedBuilding && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="sticky top-16 z-30 bg-accent/80 backdrop-blur-md border-y border-border/50 px-6 py-3 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3 text-sm">
+              <Building2 className="w-4 h-4 text-primary" />
+              <span className="font-semibold text-foreground">EGID {selectedBuilding.bdg_egid}</span>
+              {selectedBuilding.stn_label && (
+                <span className="text-muted-foreground">
+                  — {selectedBuilding.stn_label} {selectedBuilding.adr_number ?? ""}
+                </span>
+              )}
             </div>
-          )}
+            <button
+              onClick={() => state.selectBuilding(null)}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted"
+            >
+              <X className="w-3.5 h-3.5" />
+              Clear selection
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          {state.initialLoading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-10 rounded-lg bg-muted animate-pulse-soft" />
-              ))}
-            </div>
-          ) : (
-            <>
-              <SelectionToolbar
-                cantons={state.cantons}
-                gemeinden={state.gemeinden}
-                selectedCantonId={state.selectedCantonId}
-                selectedBfs={state.selectedBfs}
-                limit={state.limit}
-                onSelectCanton={state.selectCanton}
-                onSelectGemeinde={state.selectGemeinde}
-                onSetLimit={state.setLimit}
-                disabled={state.cantonLoading || state.gemeindeLoading}
-              />
+      {/* Results section below map */}
+      <section className="relative px-6 py-8 border-t border-border/50 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-accent/5 to-background" />
+        <div className="absolute inset-0 topo-pattern opacity-10" />
 
-              <div className="h-px bg-border" />
+        <div className="relative">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-display font-semibold text-lg text-foreground">
+              Buildings
+              {state.filteredBuildings.length > 0 && (
+                <span className="ml-2 text-sm font-normal text-muted-foreground">
+                  ({state.filteredBuildings.length})
+                </span>
+              )}
+            </h3>
+          </div>
 
-              <FiltersPanel filters={state.filters} onChange={state.setFilters} />
-
-              <div className="h-px bg-border" />
-
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                  Results {state.filteredBuildings.length > 0 && `(${state.filteredBuildings.length})`}
-                </h3>
-                <ResultsList
-                  buildings={state.filteredBuildings}
-                  selectedEgid={state.selectedEgid}
-                  onSelect={state.selectBuilding}
-                  loading={state.gemeindeLoading}
-                />
-              </div>
-            </>
-          )}
+          <ResultsList
+            buildings={state.filteredBuildings}
+            selectedEgid={state.selectedEgid}
+            onSelect={state.selectBuilding}
+            loading={state.gemeindeLoading}
+          />
         </div>
-      </motion.aside>
+      </section>
     </div>
   );
 }
