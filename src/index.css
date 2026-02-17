@@ -213,6 +213,16 @@
 ::-webkit-scrollbar-thumb { background: hsl(145 15% 80%); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: hsl(152 30% 60%); }
 
+/* Shimmer line */
+.shimmer-line {
+  animation: shimmer 4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .animated-blob,
@@ -220,6 +230,9 @@
     animation: none;
   }
   .hero-animated-gradient {
+    animation: none;
+  }
+  .shimmer-line {
     animation: none;
   }
 }
