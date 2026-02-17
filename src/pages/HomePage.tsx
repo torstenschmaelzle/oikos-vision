@@ -108,7 +108,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero */}
-      <section ref={heroRef} className="relative overflow-hidden min-h-[90vh] flex items-center justify-center">
+      <section ref={heroRef} className="relative overflow-hidden min-h-[92vh] flex flex-col items-center justify-center">
       {/* Layered background */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-accent/20 to-background" />
         <div className="absolute inset-0 topo-pattern opacity-60" />
@@ -125,11 +125,10 @@ export default function HomePage() {
 
         {/* Shimmer lines */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent shimmer-line" />
 
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
-          className="relative max-w-5xl mx-auto px-6 pt-32 pb-24 text-center"
+          className="relative max-w-5xl mx-auto px-6 pt-24 pb-6 text-center"
         >
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -145,7 +144,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="font-display font-bold text-5xl md:text-7xl leading-tight mb-6 text-foreground"
+            className="font-display font-bold text-5xl md:text-7xl leading-tight mb-5 text-foreground"
           >
             Unlock Switzerland's
             <br />
@@ -156,7 +155,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.35 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
+            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8"
           >
             Explore rooftop solar data for every building across Swiss cantons and municipalities.
             Make smarter energy decisions with real-time insights.
@@ -166,6 +165,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.5 }}
+            className="mb-12"
           >
             <Link
               to="/map"
@@ -175,27 +175,36 @@ export default function HomePage() {
               <ArrowRight className="w-5 h-5" />
             </Link>
           </motion.div>
-        </motion.div>
-      </section>
 
-      {/* Stats */}
-      <section className="relative py-16 border-b border-primary/25">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-accent/18 to-primary/5" />
-        <div className="absolute inset-0 noise-overlay opacity-[0.03]" />
-        <div className="relative max-w-5xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-          <ScrollSection>
-            <AnimatedCounter target={26} />
-            <p className="mt-2 text-sm text-muted-foreground">Cantons Covered</p>
-          </ScrollSection>
-          <ScrollSection>
-            <AnimatedCounter target={2148} suffix="+" />
-            <p className="mt-2 text-sm text-muted-foreground">Municipalities</p>
-          </ScrollSection>
-          <ScrollSection>
-            <AnimatedCounter target={500} suffix="K+" />
-            <p className="mt-2 text-sm text-muted-foreground">Buildings Analyzed</p>
-          </ScrollSection>
-        </div>
+          {/* Stats — integrated into hero */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.65 }}
+          >
+            <div className="mx-auto max-w-3xl">
+              <div className="h-px w-48 mx-auto mb-8 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-10">
+                <div className="text-center">
+                  <AnimatedCounter target={26} />
+                  <p className="mt-1.5 text-sm text-muted-foreground">Cantons Covered</p>
+                </div>
+                <div className="text-center">
+                  <AnimatedCounter target={2148} suffix="+" />
+                  <p className="mt-1.5 text-sm text-muted-foreground">Municipalities</p>
+                </div>
+                <div className="text-center col-span-2 md:col-span-1">
+                  <AnimatedCounter target={500} suffix="K+" />
+                  <p className="mt-1.5 text-sm text-muted-foreground">Buildings Analyzed</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Bottom gradient transition */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent shimmer-line" />
       </section>
 
       {/* Info Cards */}
