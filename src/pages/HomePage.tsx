@@ -110,22 +110,22 @@ export default function HomePage() {
       {/* Hero */}
       <section ref={heroRef} className="relative overflow-hidden min-h-[90vh] flex items-center justify-center">
       {/* Layered background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-secondary via-accent/10 to-background" />
-        <div className="absolute inset-0 topo-pattern opacity-50" />
-        <div className="absolute inset-0 noise-overlay opacity-[0.03]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-accent/20 to-background" />
+        <div className="absolute inset-0 topo-pattern opacity-60" />
+        <div className="absolute inset-0 noise-overlay opacity-[0.04]" />
 
         {/* Radial hero glow */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full bg-primary/10 blur-[150px]" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full bg-primary/20 blur-[150px]" />
 
         {/* Animated gradient blobs */}
-        <motion.div style={{ y: blob1Y }} className="absolute -top-20 -right-32 w-[600px] h-[600px] rounded-full bg-primary/12 blur-[120px] animated-blob" />
-        <motion.div style={{ y: blob2Y }} className="absolute -bottom-20 -left-32 w-[500px] h-[500px] rounded-full bg-accent/25 blur-[100px] animated-blob-2" />
-        <motion.div style={{ y: blob1Y }} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] rounded-full bg-primary/8 blur-[130px] animated-blob" />
-        <motion.div style={{ y: blob2Y }} className="absolute top-[20%] left-[15%] w-[300px] h-[300px] rounded-full bg-accent/15 blur-[90px] animated-blob-2" />
+        <motion.div style={{ y: blob1Y }} className="absolute -top-20 -right-32 w-[600px] h-[600px] rounded-full bg-primary/25 blur-[120px] animated-blob" />
+        <motion.div style={{ y: blob2Y }} className="absolute -bottom-20 -left-32 w-[500px] h-[500px] rounded-full bg-primary/20 blur-[100px] animated-blob-2" />
+        <motion.div style={{ y: blob1Y }} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] rounded-full bg-primary/15 blur-[130px] animated-blob" />
+        <motion.div style={{ y: blob2Y }} className="absolute top-[20%] left-[15%] w-[300px] h-[300px] rounded-full bg-primary/18 blur-[90px] animated-blob-2" />
 
         {/* Shimmer lines */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent shimmer-line" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent shimmer-line" />
 
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
@@ -136,7 +136,7 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
           >
-            <span className="inline-block mb-4 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-accent text-accent-foreground">
+            <span className="inline-block mb-4 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-primary/15 text-primary border border-primary/25">
               Swiss Solar Intelligence
             </span>
           </motion.div>
@@ -179,9 +179,9 @@ export default function HomePage() {
       </section>
 
       {/* Stats */}
-      <section className="relative py-16 border-b border-primary/15">
-        <div className="absolute inset-0 bg-gradient-to-b from-accent/8 via-accent/12 to-accent/5" />
-        <div className="absolute inset-0 noise-overlay opacity-[0.02]" />
+      <section className="relative py-16 border-b border-primary/25">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-accent/18 to-primary/5" />
+        <div className="absolute inset-0 noise-overlay opacity-[0.03]" />
         <div className="relative max-w-5xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
           <ScrollSection>
             <AnimatedCounter target={26} />
@@ -200,11 +200,11 @@ export default function HomePage() {
 
       {/* Info Cards */}
       <section className="relative py-20 px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-accent/6 to-secondary/40" />
-        <div className="absolute inset-0 topo-pattern opacity-25" />
-        <div className="absolute inset-0 noise-overlay opacity-[0.02]" />
-        <div className="absolute top-10 right-0 w-96 h-96 rounded-full bg-primary/10 blur-[100px] animated-blob-2" />
-        <div className="absolute bottom-10 left-0 w-72 h-72 rounded-full bg-accent/15 blur-[80px] animated-blob" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/15 to-primary/8" />
+        <div className="absolute inset-0 topo-pattern opacity-35" />
+        <div className="absolute inset-0 noise-overlay opacity-[0.03]" />
+        <div className="absolute top-10 right-0 w-96 h-96 rounded-full bg-primary/20 blur-[100px] animated-blob-2" />
+        <div className="absolute bottom-10 left-0 w-72 h-72 rounded-full bg-primary/18 blur-[80px] animated-blob" />
         <div className="relative max-w-5xl mx-auto">
           <ScrollSection className="text-center mb-14">
             <h2 className="font-display font-bold text-3xl md:text-4xl text-foreground mb-4">
@@ -221,7 +221,7 @@ export default function HomePage() {
                 <motion.div
                   whileHover={{ y: -4, boxShadow: "var(--shadow-elevated)" }}
                   transition={{ type: "spring", stiffness: 300 }}
-                  className="p-6 rounded-2xl border border-border/50 gradient-card shadow-soft"
+                  className="p-6 rounded-2xl border border-primary/15 gradient-card shadow-soft"
                 >
                   <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-4 shadow-glow">
                     <card.icon className="w-6 h-6 text-primary-foreground" />
@@ -237,10 +237,10 @@ export default function HomePage() {
 
       {/* Scroll Stack Sections */}
       <section className="relative py-20 px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-accent/12 via-secondary/40 to-accent/8" />
-        <div className="absolute inset-0 topo-pattern opacity-30" />
-        <div className="absolute inset-0 noise-overlay opacity-[0.02]" />
-        <div className="absolute top-20 right-[10%] w-80 h-80 rounded-full bg-primary/8 blur-[100px] animated-blob" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-accent/20 to-primary/8" />
+        <div className="absolute inset-0 topo-pattern opacity-40" />
+        <div className="absolute inset-0 noise-overlay opacity-[0.03]" />
+        <div className="absolute top-20 right-[10%] w-80 h-80 rounded-full bg-primary/18 blur-[100px] animated-blob" />
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
         <div className="relative max-w-3xl mx-auto space-y-20">
           {scrollSections.map((s, i) => (
@@ -261,9 +261,9 @@ export default function HomePage() {
 
       {/* CTA */}
       <section className="relative py-24 px-6 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-secondary/50 via-accent/8 to-background" />
-        <div className="absolute inset-0 topo-pattern opacity-15" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/10 blur-[120px] animated-blob" />
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/10 via-accent/15 to-background" />
+        <div className="absolute inset-0 topo-pattern opacity-20" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/20 blur-[120px] animated-blob" />
         <ScrollSection className="relative max-w-2xl mx-auto">
           <h2 className="font-display font-bold text-3xl md:text-4xl text-foreground mb-4">
             Ready to Explore?
