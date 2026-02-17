@@ -101,14 +101,26 @@ export default function HomePage() {
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
+  // Parallax for decorative elements
+  const blob1Y = useTransform(scrollYProgress, [0, 1], [0, 60]);
+  const blob2Y = useTransform(scrollYProgress, [0, 1], [0, -40]);
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       {/* Hero */}
-      <section ref={heroRef} className="relative gradient-hero overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-20 right-20 w-96 h-96 rounded-full bg-primary/10 blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-72 h-72 rounded-full bg-accent/40 blur-3xl" />
-        </div>
+      <section ref={heroRef} className="relative overflow-hidden min-h-[90vh] flex items-center justify-center">
+        {/* Layered background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-secondary via-background to-background" />
+        <div className="absolute inset-0 topo-pattern opacity-40" />
+        <div className="absolute inset-0 noise-overlay opacity-[0.02]" />
+
+        {/* Animated gradient blobs */}
+        <motion.div style={{ y: blob1Y }} className="absolute -top-20 -right-32 w-[500px] h-[500px] rounded-full bg-primary/8 blur-[100px] animated-blob" />
+        <motion.div style={{ y: blob2Y }} className="absolute -bottom-20 -left-32 w-[400px] h-[400px] rounded-full bg-accent/20 blur-[80px] animated-blob-2" />
+        <motion.div style={{ y: blob1Y }} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full bg-primary/5 blur-[120px] animated-blob" />
+
+        {/* Shimmer line */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
@@ -152,7 +164,7 @@ export default function HomePage() {
           >
             <Link
               to="/map"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-primary-foreground gradient-primary shadow-glow hover:shadow-elevated transition-all duration-300 hover:scale-[1.03]"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-primary-foreground gradient-primary shadow-glow hover:shadow-elevated transition-all duration-300 hover:scale-[1.03] ring-2 ring-primary/20 ring-offset-2 ring-offset-background"
             >
               Explore Map
               <ArrowRight className="w-5 h-5" />
@@ -162,8 +174,9 @@ export default function HomePage() {
       </section>
 
       {/* Stats */}
-      <section className="py-16 border-b border-border/50">
-        <div className="max-w-5xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+      <section className="relative py-16 border-b border-primary/10">
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-accent/5 to-background" />
+        <div className="relative max-w-5xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
           <ScrollSection>
             <AnimatedCounter target={26} />
             <p className="mt-2 text-sm text-muted-foreground">Cantons Covered</p>
@@ -180,8 +193,10 @@ export default function HomePage() {
       </section>
 
       {/* Info Cards */}
-      <section className="py-20 px-6">
-        <div className="max-w-5xl mx-auto">
+      <section className="relative py-20 px-6 overflow-hidden">
+        <div className="absolute inset-0 noise-overlay opacity-[0.015]" />
+        <div className="absolute top-10 right-0 w-72 h-72 rounded-full bg-primary/5 blur-[80px] animated-blob-2" />
+        <div className="relative max-w-5xl mx-auto">
           <ScrollSection className="text-center mb-14">
             <h2 className="font-display font-bold text-3xl md:text-4xl text-foreground mb-4">
               Everything You Need
@@ -212,8 +227,11 @@ export default function HomePage() {
       </section>
 
       {/* Scroll Stack Sections */}
-      <section className="py-20 px-6 bg-muted/30">
-        <div className="max-w-3xl mx-auto space-y-20">
+      <section className="relative py-20 px-6 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-accent/8 via-secondary/30 to-accent/5" />
+        <div className="absolute inset-0 topo-pattern opacity-20" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
+        <div className="relative max-w-3xl mx-auto space-y-20">
           {scrollSections.map((s, i) => (
             <ScrollSection key={s.title}>
               <div className="flex items-start gap-5">
@@ -231,8 +249,10 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="py-24 px-6 text-center">
-        <ScrollSection className="max-w-2xl mx-auto">
+      <section className="relative py-24 px-6 text-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-secondary/40 via-background to-background" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[100px]" />
+        <ScrollSection className="relative max-w-2xl mx-auto">
           <h2 className="font-display font-bold text-3xl md:text-4xl text-foreground mb-4">
             Ready to Explore?
           </h2>
@@ -241,7 +261,7 @@ export default function HomePage() {
           </p>
           <Link
             to="/map"
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-primary-foreground gradient-primary shadow-glow hover:shadow-elevated transition-all duration-300 hover:scale-[1.03]"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-primary-foreground gradient-primary shadow-glow hover:shadow-elevated transition-all duration-300 hover:scale-[1.03] ring-2 ring-primary/20 ring-offset-2 ring-offset-background"
           >
             Open the Map
             <ArrowRight className="w-5 h-5" />
