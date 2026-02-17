@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import {
@@ -12,16 +12,11 @@ import {
   BuildingRoofsResponse,
 } from "@/lib/types";
 
-// Fix default marker icons
 import iconUrl from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 import iconRetina from "leaflet/dist/images/marker-icon-2x.png";
 
-L.Icon.Default.mergeOptions({
-  iconUrl,
-  iconRetinaUrl: iconRetina,
-  shadowUrl: iconShadow,
-});
+L.Icon.Default.mergeOptions({ iconUrl, iconRetinaUrl: iconRetina, shadowUrl: iconShadow });
 
 interface Props {
   cantonsGeo: FeatureCollection<Geometry, CantonGeoProperties> | null;
@@ -33,6 +28,16 @@ interface Props {
   selectedEgid: number | null;
   onSelectBuilding: (egid: number) => void;
   loading: boolean;
+}
+
+// Tooltip div for custom hover
+function createTooltipDiv() {
+  const div = document.createElement("div");
+  div.className = "map-feature-tooltip";
+  div.style.cssText =
+    "position:absolute;z-index:1000;pointer-events:none;opacity:0;transition:opacity 0.15s;padding:8px 14px;border-radius:12px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.5;white-space:nowrap;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background:hsla(150,20%,98%,0.85);border:1px solid hsl(145,15%,85%);box-shadow:0 4px 20px -4px hsla(150,30%,20%,0.15);color:hsl(150,10%,12%)";
+  document.body.appendChild(div);
+  return div;
 }
 
 export default function MapView({
@@ -49,8 +54,8 @@ export default function MapView({
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const layersRef = useRef<L.LayerGroup>(L.layerGroup());
+  const tooltipRef = useRef<HTMLDivElement | null>(null);
 
-  // Initialize map once
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
     const map = L.map(containerRef.current, { zoomControl: true }).setView([46.8, 8.2], 8);
@@ -59,39 +64,74 @@ export default function MapView({
     }).addTo(map);
     layersRef.current.addTo(map);
     mapRef.current = map;
+    tooltipRef.current = createTooltipDiv();
 
     return () => {
       map.remove();
       mapRef.current = null;
+      if (tooltipRef.current) {
+        document.body.removeChild(tooltipRef.current);
+        tooltipRef.current = null;
+      }
     };
   }, []);
 
-  // Update layers when data changes
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-
     const layers = layersRef.current;
     layers.clearLayers();
+    const tip = tooltipRef.current;
+
+    const showTip = (e: L.LeafletMouseEvent, html: string) => {
+      if (!tip) return;
+      tip.innerHTML = html;
+      tip.style.opacity = "1";
+      tip.style.left = e.originalEvent.pageX + 14 + "px";
+      tip.style.top = e.originalEvent.pageY - 10 + "px";
+    };
+    const moveTip = (e: L.LeafletMouseEvent) => {
+      if (!tip) return;
+      tip.style.left = e.originalEvent.pageX + 14 + "px";
+      tip.style.top = e.originalEvent.pageY - 10 + "px";
+    };
+    const hideTip = () => {
+      if (tip) tip.style.opacity = "0";
+    };
 
     const cantonStyle: L.PathOptions = { color: "#3b9c6b", weight: 1, fillOpacity: 0.05, fillColor: "#3b9c6b" };
+    const cantonHover: L.PathOptions = { weight: 2.5, fillOpacity: 0.12, color: "#2d7d56" };
     const selectedCantonStyle: L.PathOptions = { color: "#2d7d56", weight: 2.5, fillOpacity: 0.08, fillColor: "#2d7d56" };
     const gemeindeStyle: L.PathOptions = { color: "#5cb88a", weight: 1, fillOpacity: 0.03, fillColor: "#5cb88a", dashArray: "4 4" };
+    const gemeindeHover: L.PathOptions = { weight: 2, fillOpacity: 0.1, color: "#2d7d56" };
     const gemeindeBoundaryStyle: L.PathOptions = { color: "#2d7d56", weight: 3, fillOpacity: 0.1, fillColor: "#2d7d56" };
     const roofPartStyle: L.PathOptions = { color: "#f59e0b", weight: 1.5, fillOpacity: 0.35, fillColor: "#fbbf24" };
+    const roofPartHover: L.PathOptions = { fillOpacity: 0.55, weight: 2.5 };
     const roofUnionStyle: L.PathOptions = { color: "#ef4444", weight: 2, fillOpacity: 0.15, fillColor: "#ef4444", dashArray: "6 4" };
 
-    // Canton borders (when no canton selected)
+    // Canton borders
     if (!selectedCantonGeo && cantonsGeo) {
-      L.geoJSON(cantonsGeo as any, { style: cantonStyle }).addTo(layers);
+      L.geoJSON(cantonsGeo as any, {
+        style: cantonStyle,
+        onEachFeature: (feature, layer) => {
+          const p = feature.properties as CantonGeoProperties;
+          layer.on({
+            mouseover: (e: any) => {
+              (e.target as L.Path).setStyle(cantonHover);
+              showTip(e, `<strong>${p.name}</strong> <span style="opacity:0.6;margin-left:4px">${p.code}</span>`);
+            },
+            mousemove: moveTip,
+            mouseout: (e: any) => {
+              (e.target as L.Path).setStyle(cantonStyle);
+              hideTip();
+            },
+          });
+        },
+      }).addTo(layers);
     }
 
-    // Selected canton
     if (selectedCantonGeo) {
-      const fc = {
-        type: "FeatureCollection",
-        features: [{ type: "Feature", geometry: selectedCantonGeo.geojson, properties: {} }],
-      };
+      const fc = { type: "FeatureCollection", features: [{ type: "Feature", geometry: selectedCantonGeo.geojson, properties: {} }] };
       const layer = L.geoJSON(fc as any, { style: selectedCantonStyle }).addTo(layers);
       if (!selectedGemeindeGeo) {
         try {
@@ -101,17 +141,28 @@ export default function MapView({
       }
     }
 
-    // Gemeinden overlay
     if (gemeindenGeo && !selectedGemeindeGeo) {
-      L.geoJSON(gemeindenGeo as any, { style: gemeindeStyle }).addTo(layers);
+      L.geoJSON(gemeindenGeo as any, {
+        style: gemeindeStyle,
+        onEachFeature: (feature, layer) => {
+          const p = feature.properties as GemeindeGeoProperties;
+          layer.on({
+            mouseover: (e: any) => {
+              (e.target as L.Path).setStyle(gemeindeHover);
+              showTip(e, `<strong>${p.name}</strong> <span style="opacity:0.6;margin-left:4px">BFS ${p.bfs_nummer}</span>`);
+            },
+            mousemove: moveTip,
+            mouseout: (e: any) => {
+              (e.target as L.Path).setStyle(gemeindeStyle);
+              hideTip();
+            },
+          });
+        },
+      }).addTo(layers);
     }
 
-    // Selected gemeinde boundary
     if (selectedGemeindeGeo) {
-      const fc = {
-        type: "FeatureCollection",
-        features: [{ type: "Feature", geometry: selectedGemeindeGeo.geojson, properties: {} }],
-      };
+      const fc = { type: "FeatureCollection", features: [{ type: "Feature", geometry: selectedGemeindeGeo.geojson, properties: {} }] };
       const layer = L.geoJSON(fc as any, { style: gemeindeBoundaryStyle }).addTo(layers);
       try {
         const bounds = layer.getBounds();
@@ -119,7 +170,6 @@ export default function MapView({
       } catch {}
     }
 
-    // Building markers
     buildings.forEach((b) => {
       if (b.lat && b.lon) {
         const marker = L.marker([b.lat, b.lon]).addTo(layers);
@@ -134,13 +184,16 @@ export default function MapView({
       }
     });
 
-    // Roof parts
     if (buildingRoofs) {
       buildingRoofs.parts.forEach((p) => {
         if (p.geojson) {
-          L.geoJSON({ type: "Feature", geometry: p.geojson, properties: {} } as any, {
+          const partLayer = L.geoJSON({ type: "Feature", geometry: p.geojson, properties: {} } as any, {
             style: roofPartStyle,
           }).addTo(layers);
+          partLayer.on({
+            mouseover: (e: any) => (e.target as L.Path).setStyle(roofPartHover),
+            mouseout: (e: any) => (e.target as L.Path).setStyle(roofPartStyle),
+          });
         }
       });
       if (buildingRoofs.union) {
