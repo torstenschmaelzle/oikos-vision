@@ -15,7 +15,7 @@ export default function MapPage() {
     : null;
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-4rem)]">
+    <div className="flex flex-col min-h-[calc(100vh-4rem)] bg-[hsl(150,20%,6%)]">
       {/* Top section: Map + Sidebar */}
       <div className="flex flex-1 min-h-[60vh] max-h-[75vh]">
         {/* Map */}
@@ -33,12 +33,12 @@ export default function MapPage() {
           />
         </div>
 
-        {/* Sidebar — controls only */}
+        {/* Sidebar — dark glass panel */}
         <motion.aside
           initial={{ x: 40, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4 }}
-          className="w-[320px] border-l border-border/50 bg-card overflow-y-auto shrink-0"
+          className="w-[320px] border-l border-primary/15 bg-[hsla(150,20%,8%,0.8)] backdrop-blur-xl overflow-y-auto shrink-0"
         >
           <div className="p-4 space-y-5">
             <AnimatePresence>
@@ -47,7 +47,7 @@ export default function MapPage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-xs"
+                  className="flex items-start gap-2 p-3 rounded-lg bg-destructive/15 text-red-400 text-xs border border-destructive/20"
                 >
                   <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
                   <span>{state.error}</span>
@@ -58,7 +58,7 @@ export default function MapPage() {
             {state.initialLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="h-10 rounded-lg bg-muted animate-pulse" />
+                  <div key={i} className="h-10 rounded-lg bg-[hsl(150,15%,12%)] animate-pulse" />
                 ))}
               </div>
             ) : (
@@ -75,7 +75,7 @@ export default function MapPage() {
                   disabled={state.cantonLoading || state.gemeindeLoading}
                 />
 
-                <div className="h-px bg-border" />
+                <div className="h-px bg-primary/15" />
 
                 <FiltersPanel filters={state.filters} onChange={state.setFilters} />
               </>
@@ -91,20 +91,20 @@ export default function MapPage() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="sticky top-16 z-30 bg-accent/80 backdrop-blur-md border-y border-border/50 px-6 py-3 flex items-center justify-between"
+            className="sticky top-16 z-30 bg-[hsla(150,20%,10%,0.85)] backdrop-blur-md border-y border-primary/15 px-6 py-3 flex items-center justify-between"
           >
             <div className="flex items-center gap-3 text-sm">
               <Building2 className="w-4 h-4 text-primary" />
-              <span className="font-semibold text-foreground">EGID {selectedBuilding.bdg_egid}</span>
+              <span className="font-semibold text-[hsl(145,15%,90%)]">EGID {selectedBuilding.bdg_egid}</span>
               {selectedBuilding.stn_label && (
-                <span className="text-muted-foreground">
+                <span className="text-[hsl(145,10%,55%)]">
                   — {selectedBuilding.stn_label} {selectedBuilding.adr_number ?? ""}
                 </span>
               )}
             </div>
             <button
               onClick={() => state.selectBuilding(null)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted"
+              className="flex items-center gap-1.5 text-xs text-[hsl(145,10%,55%)] hover:text-[hsl(145,15%,85%)] transition-colors px-3 py-1.5 rounded-lg hover:bg-[hsl(150,15%,15%)]"
             >
               <X className="w-3.5 h-3.5" />
               Clear selection
@@ -114,16 +114,16 @@ export default function MapPage() {
       </AnimatePresence>
 
       {/* Results section below map */}
-      <section className="relative px-6 py-8 border-t border-border/50 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-accent/5 to-background" />
-        <div className="absolute inset-0 topo-pattern opacity-10" />
+      <section className="relative px-6 py-8 border-t border-primary/10 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(150,20%,8%)] to-[hsl(150,20%,6%)]" />
+        <div className="absolute inset-0 topo-pattern opacity-5" />
 
         <div className="relative">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="font-display font-semibold text-lg text-foreground">
+            <h3 className="font-display font-semibold text-lg text-[hsl(145,15%,90%)]">
               Buildings
               {state.filteredBuildings.length > 0 && (
-                <span className="ml-2 text-sm font-normal text-muted-foreground">
+                <span className="ml-2 text-sm font-normal text-[hsl(145,10%,50%)]">
                   ({state.filteredBuildings.length})
                 </span>
               )}

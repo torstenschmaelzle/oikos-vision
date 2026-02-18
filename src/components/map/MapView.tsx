@@ -30,12 +30,11 @@ interface Props {
   loading: boolean;
 }
 
-// Tooltip div for custom hover
 function createTooltipDiv() {
   const div = document.createElement("div");
   div.className = "map-feature-tooltip";
   div.style.cssText =
-    "position:absolute;z-index:1000;pointer-events:none;opacity:0;transition:opacity 0.15s;padding:8px 14px;border-radius:12px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.5;white-space:nowrap;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background:hsla(150,20%,98%,0.85);border:1px solid hsl(145,15%,85%);box-shadow:0 4px 20px -4px hsla(150,30%,20%,0.15);color:hsl(150,10%,12%)";
+    "position:absolute;z-index:1000;pointer-events:none;opacity:0;transition:opacity 0.15s;padding:8px 14px;border-radius:12px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.5;white-space:nowrap;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:hsla(150,20%,8%,0.85);border:1px solid hsla(152,60%,38%,0.3);box-shadow:0 4px 20px -4px hsla(150,30%,5%,0.4);color:hsl(145,15%,90%)";
   document.body.appendChild(div);
   return div;
 }
@@ -59,7 +58,7 @@ export default function MapView({
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
     const map = L.map(containerRef.current, { zoomControl: true }).setView([46.8, 8.2], 8);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
     }).addTo(map);
     layersRef.current.addTo(map);
@@ -99,15 +98,16 @@ export default function MapView({
       if (tip) tip.style.opacity = "0";
     };
 
-    const cantonStyle: L.PathOptions = { color: "#3b9c6b", weight: 1, fillOpacity: 0.05, fillColor: "#3b9c6b" };
-    const cantonHover: L.PathOptions = { weight: 2.5, fillOpacity: 0.12, color: "#2d7d56" };
-    const selectedCantonStyle: L.PathOptions = { color: "#2d7d56", weight: 2.5, fillOpacity: 0.08, fillColor: "#2d7d56" };
-    const gemeindeStyle: L.PathOptions = { color: "#5cb88a", weight: 1, fillOpacity: 0.03, fillColor: "#5cb88a", dashArray: "4 4" };
-    const gemeindeHover: L.PathOptions = { weight: 2, fillOpacity: 0.1, color: "#2d7d56" };
-    const gemeindeBoundaryStyle: L.PathOptions = { color: "#2d7d56", weight: 3, fillOpacity: 0.1, fillColor: "#2d7d56" };
-    const roofPartStyle: L.PathOptions = { color: "#f59e0b", weight: 1.5, fillOpacity: 0.35, fillColor: "#fbbf24" };
-    const roofPartHover: L.PathOptions = { fillOpacity: 0.55, weight: 2.5 };
-    const roofUnionStyle: L.PathOptions = { color: "#ef4444", weight: 2, fillOpacity: 0.15, fillColor: "#ef4444", dashArray: "6 4" };
+    // Green glass theme styles
+    const cantonStyle: L.PathOptions = { color: "hsl(152,55%,45%)", weight: 1, fillOpacity: 0.08, fillColor: "hsl(152,55%,45%)" };
+    const cantonHover: L.PathOptions = { weight: 2.5, fillOpacity: 0.18, color: "hsl(152,65%,55%)" };
+    const selectedCantonStyle: L.PathOptions = { color: "hsl(152,65%,50%)", weight: 2.5, fillOpacity: 0.12, fillColor: "hsl(152,55%,45%)" };
+    const gemeindeStyle: L.PathOptions = { color: "hsl(152,50%,40%)", weight: 1, fillOpacity: 0.05, fillColor: "hsl(152,50%,40%)", dashArray: "4 4" };
+    const gemeindeHover: L.PathOptions = { weight: 2, fillOpacity: 0.15, color: "hsl(152,65%,55%)" };
+    const gemeindeBoundaryStyle: L.PathOptions = { color: "hsl(152,65%,55%)", weight: 3, fillOpacity: 0.12, fillColor: "hsl(152,55%,45%)" };
+    const roofPartStyle: L.PathOptions = { color: "hsl(152,70%,50%)", weight: 1.5, fillOpacity: 0.3, fillColor: "hsl(152,60%,45%)" };
+    const roofPartHover: L.PathOptions = { fillOpacity: 0.5, weight: 2.5, color: "hsl(152,80%,60%)" };
+    const roofUnionStyle: L.PathOptions = { color: "hsl(152,80%,60%)", weight: 2, fillOpacity: 0.1, fillColor: "hsl(152,70%,55%)", dashArray: "6 4" };
 
     // Canton borders
     if (!selectedCantonGeo && cantonsGeo) {
@@ -118,7 +118,7 @@ export default function MapView({
           layer.on({
             mouseover: (e: any) => {
               (e.target as L.Path).setStyle(cantonHover);
-              showTip(e, `<strong>${p.name}</strong> <span style="opacity:0.6;margin-left:4px">${p.code}</span>`);
+              showTip(e, `<strong>${p.name}</strong>`);
             },
             mousemove: moveTip,
             mouseout: (e: any) => {
@@ -149,7 +149,7 @@ export default function MapView({
           layer.on({
             mouseover: (e: any) => {
               (e.target as L.Path).setStyle(gemeindeHover);
-              showTip(e, `<strong>${p.name}</strong> <span style="opacity:0.6;margin-left:4px">BFS ${p.bfs_nummer}</span>`);
+              showTip(e, `<strong>${p.name}</strong>`);
             },
             mousemove: moveTip,
             mouseout: (e: any) => {
@@ -170,26 +170,38 @@ export default function MapView({
       } catch {}
     }
 
+    // Building markers — green circle markers
     buildings.forEach((b) => {
       if (b.lat && b.lon) {
-        const marker = L.marker([b.lat, b.lon]).addTo(layers);
+        const isSelected = b.bdg_egid === selectedEgid;
+        const marker = L.circleMarker([b.lat, b.lon], {
+          radius: isSelected ? 8 : 5,
+          color: isSelected ? "hsl(152,80%,65%)" : "hsl(152,60%,45%)",
+          fillColor: isSelected ? "hsl(152,80%,65%)" : "hsl(152,55%,40%)",
+          fillOpacity: isSelected ? 0.9 : 0.7,
+          weight: isSelected ? 3 : 1.5,
+          ...(isSelected ? { className: "selected-building-marker" } : {}),
+        }).addTo(layers);
         marker.on("click", () => onSelectBuilding(b.bdg_egid));
-        const popup = `<div style="font-size:13px;line-height:1.5">
+        const popup = `<div style="font-size:13px;line-height:1.5;color:hsl(145,15%,90%);background:hsla(150,20%,8%,0.95);padding:10px 14px;border-radius:10px;border:1px solid hsla(152,60%,38%,0.3);">
           <strong>EGID ${b.bdg_egid}</strong>
           ${b.stn_label ? `<br/>${b.stn_label} ${b.adr_number ?? ""}` : ""}
           ${b.sommer_total != null ? `<br/>☀ ${Math.round(b.sommer_total).toLocaleString()} kWh` : ""}
           ${b.winter_total != null ? `<br/>❄ ${Math.round(b.winter_total).toLocaleString()} kWh` : ""}
         </div>`;
-        marker.bindPopup(popup);
+        marker.bindPopup(popup, { className: "dark-popup" });
       }
     });
 
+    // Roof polygons + auto-zoom
     if (buildingRoofs) {
+      const roofLayerGroup = L.featureGroup();
+
       buildingRoofs.parts.forEach((p) => {
         if (p.geojson) {
           const partLayer = L.geoJSON({ type: "Feature", geometry: p.geojson, properties: {} } as any, {
             style: roofPartStyle,
-          }).addTo(layers);
+          }).addTo(roofLayerGroup);
           partLayer.on({
             mouseover: (e: any) => (e.target as L.Path).setStyle(roofPartHover),
             mouseout: (e: any) => (e.target as L.Path).setStyle(roofPartStyle),
@@ -199,18 +211,28 @@ export default function MapView({
       if (buildingRoofs.union) {
         L.geoJSON({ type: "Feature", geometry: buildingRoofs.union, properties: {} } as any, {
           style: roofUnionStyle,
-        }).addTo(layers);
+        }).addTo(roofLayerGroup);
       }
+
+      roofLayerGroup.addTo(layers);
+
+      // Auto-zoom to roof polygons
+      try {
+        const roofBounds = roofLayerGroup.getBounds();
+        if (roofBounds.isValid()) {
+          map.fitBounds(roofBounds, { padding: [40, 40], animate: true, duration: 0.8, maxZoom: 19 });
+        }
+      } catch {}
     }
-  }, [cantonsGeo, selectedCantonGeo, gemeindenGeo, selectedGemeindeGeo, buildings, buildingRoofs, onSelectBuilding]);
+  }, [cantonsGeo, selectedCantonGeo, gemeindenGeo, selectedGemeindeGeo, buildings, buildingRoofs, selectedEgid, onSelectBuilding]);
 
   return (
-    <div className="relative w-full h-full rounded-xl overflow-hidden shadow-card border border-border/50">
+    <div className="relative w-full h-full rounded-xl overflow-hidden border border-primary/20 shadow-[0_0_30px_-5px_hsla(152,60%,38%,0.15)]">
       {loading && (
-        <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-background/60 backdrop-blur-sm">
+        <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-[hsla(150,20%,6%,0.7)] backdrop-blur-sm">
           <div className="flex flex-col items-center gap-3">
             <div className="w-10 h-10 border-[3px] border-primary border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm font-medium text-muted-foreground">Loading map data…</span>
+            <span className="text-sm font-medium text-[hsl(145,15%,70%)]">Loading map data…</span>
           </div>
         </div>
       )}
