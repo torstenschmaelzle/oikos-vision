@@ -203,8 +203,27 @@
 
 .leaflet-popup-content-wrapper {
   border-radius: 12px !important;
-  box-shadow: var(--shadow-card) !important;
-  padding: 4px !important;
+  box-shadow: 0 4px 20px -4px hsla(150,30%,5%,0.5) !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.leaflet-popup-tip {
+  background: hsla(150,20%,8%,0.95) !important;
+}
+
+.dark-popup .leaflet-popup-content-wrapper {
+  background: transparent !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+}
+
+/* Selected building marker glow */
+.selected-building-marker {
+  filter: drop-shadow(0 0 6px hsla(152,80%,55%,0.5));
 }
 
 /* Scrollbar */
