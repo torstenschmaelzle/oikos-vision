@@ -14,19 +14,24 @@ import {
 const DEFAULT_BASE = "https://data.apioikosconsulting.com";
 
 async function apiFetch<T>(path: string): Promise<T> {
-  const res = await fetch(`${DEFAULT_BASE}${path}`, {
+  const url = `${DEFAULT_BASE}${path}`;
+  console.info(`[Oikos API] → GET ${url}`);
+  const res = await fetch(url, {
     method: "GET",
     headers: { Accept: "application/json" },
     cache: "no-store",
   });
   if (!res.ok) {
-    let message = `HTTP ${res.status}`;
+    let detail = "";
     try {
       const body = await res.json();
-      if (body?.detail) message = body.detail;
+      detail = body?.detail ?? "";
     } catch {}
+    const message = `API ${res.status} from ${url}${detail ? `: ${detail.slice(0, 200)}` : ""}`;
+    console.error(`[Oikos API] ✗ ${message}`);
     throw new Error(message);
   }
+  console.info(`[Oikos API] ✓ ${res.status} ${url}`);
   return res.json();
 }
 
