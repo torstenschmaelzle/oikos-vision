@@ -189,7 +189,7 @@
   75% { transform: translate(15px, 10px) scale(1.02); }
 }
 
-/* Leaflet overrides */
+/* Leaflet overrides — light theme */
 .leaflet-container {
   font-family: 'Plus Jakarta Sans', sans-serif;
   border-radius: var(--radius);
@@ -197,24 +197,22 @@
 
 .leaflet-control-zoom a {
   border-radius: 8px !important;
-  border: 1px solid hsl(145 15% 90%) !important;
+  border: 1px solid hsl(145 15% 85%) !important;
   box-shadow: var(--shadow-soft) !important;
+  background: hsl(0 0% 100%) !important;
+  color: hsl(150 10% 25%) !important;
 }
 
 .leaflet-popup-content-wrapper {
   border-radius: 12px !important;
-  box-shadow: 0 4px 20px -4px hsla(150,30%,5%,0.5) !important;
+  box-shadow: 0 4px 16px -4px hsl(150 20% 20% / 0.12) !important;
   padding: 0 !important;
   background: transparent !important;
   border: none !important;
 }
 
 .leaflet-popup-tip {
-  background: hsla(150,20%,8%,0.95) !important;
-}
-
-.dark-popup .leaflet-popup-content-wrapper {
-  background: transparent !important;
+  background: hsl(0 0% 100% / 0.97) !important;
 }
 
 .leaflet-popup-content {
@@ -223,7 +221,7 @@
 
 /* Selected building marker glow */
 .selected-building-marker {
-  filter: drop-shadow(0 0 6px hsla(152,80%,55%,0.5));
+  filter: drop-shadow(0 0 6px hsl(152 55% 40% / 0.4));
 }
 
 /* Scrollbar */
