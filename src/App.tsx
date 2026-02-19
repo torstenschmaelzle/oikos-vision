@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
+import DevDiagnostics from "@/components/DevDiagnostics";
 import HomePage from "./pages/HomePage";
 import MapPage from "./pages/MapPage";
 import NotFound from "./pages/NotFound";
@@ -26,6 +27,7 @@ const App = () => (
           </Routes>
         </div>
       </BrowserRouter>
+      <DevDiagnostics />
     </TooltipProvider>
   </QueryClientProvider>
 );

@@ -34,10 +34,21 @@ function createTooltipDiv() {
   const div = document.createElement("div");
   div.className = "map-feature-tooltip";
   div.style.cssText =
-    "position:absolute;z-index:1000;pointer-events:none;opacity:0;transition:opacity 0.15s;padding:8px 14px;border-radius:12px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.5;white-space:nowrap;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:hsla(150,20%,8%,0.85);border:1px solid hsla(152,60%,38%,0.3);box-shadow:0 4px 20px -4px hsla(150,30%,5%,0.4);color:hsl(145,15%,90%)";
+    "position:absolute;z-index:1000;pointer-events:none;opacity:0;transition:opacity 0.15s;padding:8px 14px;border-radius:10px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.5;white-space:nowrap;background:hsl(0 0% 100% / 0.95);border:1px solid hsl(145 15% 85%);box-shadow:0 4px 16px -4px hsl(150 20% 20% / 0.15);color:hsl(150 10% 20%)";
   document.body.appendChild(div);
   return div;
 }
+
+// Light-theme map styles
+const cantonStyle: L.PathOptions = { color: "hsl(152,50%,38%)", weight: 1.5, fillOpacity: 0.06, fillColor: "hsl(152,50%,50%)" };
+const cantonHover: L.PathOptions = { weight: 2.5, fillOpacity: 0.15, color: "hsl(152,60%,35%)" };
+const selectedCantonStyle: L.PathOptions = { color: "hsl(152,55%,40%)", weight: 2.5, fillOpacity: 0.1, fillColor: "hsl(152,50%,50%)" };
+const gemeindeStyle: L.PathOptions = { color: "hsl(152,40%,50%)", weight: 1, fillOpacity: 0.04, fillColor: "hsl(152,40%,55%)", dashArray: "4 4" };
+const gemeindeHover: L.PathOptions = { weight: 2, fillOpacity: 0.12, color: "hsl(152,55%,40%)" };
+const gemeindeBoundaryStyle: L.PathOptions = { color: "hsl(152,55%,40%)", weight: 3, fillOpacity: 0.08, fillColor: "hsl(152,50%,50%)" };
+const roofPartStyle: L.PathOptions = { color: "hsl(152,60%,35%)", weight: 2, fillOpacity: 0.25, fillColor: "hsl(152,55%,45%)" };
+const roofPartHover: L.PathOptions = { fillOpacity: 0.4, weight: 2.5, color: "hsl(152,65%,30%)" };
+const roofUnionStyle: L.PathOptions = { color: "hsl(152,70%,40%)", weight: 2, fillOpacity: 0.08, fillColor: "hsl(152,60%,50%)", dashArray: "6 4" };
 
 export default function MapView({
   cantonsGeo,
@@ -58,8 +69,9 @@ export default function MapView({
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
     const map = L.map(containerRef.current, { zoomControl: true }).setView([46.8, 8.2], 8);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
     }).addTo(map);
     layersRef.current.addTo(map);
     mapRef.current = map;
@@ -98,33 +110,17 @@ export default function MapView({
       if (tip) tip.style.opacity = "0";
     };
 
-    // Green glass theme styles
-    const cantonStyle: L.PathOptions = { color: "hsl(152,55%,45%)", weight: 1, fillOpacity: 0.08, fillColor: "hsl(152,55%,45%)" };
-    const cantonHover: L.PathOptions = { weight: 2.5, fillOpacity: 0.18, color: "hsl(152,65%,55%)" };
-    const selectedCantonStyle: L.PathOptions = { color: "hsl(152,65%,50%)", weight: 2.5, fillOpacity: 0.12, fillColor: "hsl(152,55%,45%)" };
-    const gemeindeStyle: L.PathOptions = { color: "hsl(152,50%,40%)", weight: 1, fillOpacity: 0.05, fillColor: "hsl(152,50%,40%)", dashArray: "4 4" };
-    const gemeindeHover: L.PathOptions = { weight: 2, fillOpacity: 0.15, color: "hsl(152,65%,55%)" };
-    const gemeindeBoundaryStyle: L.PathOptions = { color: "hsl(152,65%,55%)", weight: 3, fillOpacity: 0.12, fillColor: "hsl(152,55%,45%)" };
-    const roofPartStyle: L.PathOptions = { color: "hsl(152,70%,50%)", weight: 1.5, fillOpacity: 0.3, fillColor: "hsl(152,60%,45%)" };
-    const roofPartHover: L.PathOptions = { fillOpacity: 0.5, weight: 2.5, color: "hsl(152,80%,60%)" };
-    const roofUnionStyle: L.PathOptions = { color: "hsl(152,80%,60%)", weight: 2, fillOpacity: 0.1, fillColor: "hsl(152,70%,55%)", dashArray: "6 4" };
-
     // Canton borders
     if (!selectedCantonGeo && cantonsGeo) {
       L.geoJSON(cantonsGeo as any, {
         style: cantonStyle,
         onEachFeature: (feature, layer) => {
           const p = feature.properties as CantonGeoProperties;
+          const name = (p.name ?? "").replace(/\s+CH$/i, "").replace(/\s*\([A-Z]{2}\)\s*$/, "").trim();
           layer.on({
-            mouseover: (e: any) => {
-              (e.target as L.Path).setStyle(cantonHover);
-              showTip(e, `<strong>${p.name}</strong>`);
-            },
+            mouseover: (e: any) => { (e.target as L.Path).setStyle(cantonHover); showTip(e, `<strong>${name}</strong>`); },
             mousemove: moveTip,
-            mouseout: (e: any) => {
-              (e.target as L.Path).setStyle(cantonStyle);
-              hideTip();
-            },
+            mouseout: (e: any) => { (e.target as L.Path).setStyle(cantonStyle); hideTip(); },
           });
         },
       }).addTo(layers);
@@ -134,10 +130,7 @@ export default function MapView({
       const fc = { type: "FeatureCollection", features: [{ type: "Feature", geometry: selectedCantonGeo.geojson, properties: {} }] };
       const layer = L.geoJSON(fc as any, { style: selectedCantonStyle }).addTo(layers);
       if (!selectedGemeindeGeo) {
-        try {
-          const bounds = layer.getBounds();
-          if (bounds.isValid()) map.fitBounds(bounds, { padding: [40, 40] });
-        } catch {}
+        try { const b = layer.getBounds(); if (b.isValid()) map.fitBounds(b, { padding: [40, 40] }); } catch {}
       }
     }
 
@@ -146,16 +139,11 @@ export default function MapView({
         style: gemeindeStyle,
         onEachFeature: (feature, layer) => {
           const p = feature.properties as GemeindeGeoProperties;
+          const name = (p.name ?? "").replace(/\s*[\(\-\|]\s*\d+\s*\)?\s*$/g, "").replace(/\s+BFS\s+\d+/i, "").trim();
           layer.on({
-            mouseover: (e: any) => {
-              (e.target as L.Path).setStyle(gemeindeHover);
-              showTip(e, `<strong>${p.name}</strong>`);
-            },
+            mouseover: (e: any) => { (e.target as L.Path).setStyle(gemeindeHover); showTip(e, `<strong>${name}</strong>`); },
             mousemove: moveTip,
-            mouseout: (e: any) => {
-              (e.target as L.Path).setStyle(gemeindeStyle);
-              hideTip();
-            },
+            mouseout: (e: any) => { (e.target as L.Path).setStyle(gemeindeStyle); hideTip(); },
           });
         },
       }).addTo(layers);
@@ -164,44 +152,38 @@ export default function MapView({
     if (selectedGemeindeGeo) {
       const fc = { type: "FeatureCollection", features: [{ type: "Feature", geometry: selectedGemeindeGeo.geojson, properties: {} }] };
       const layer = L.geoJSON(fc as any, { style: gemeindeBoundaryStyle }).addTo(layers);
-      try {
-        const bounds = layer.getBounds();
-        if (bounds.isValid()) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
-      } catch {}
+      try { const b = layer.getBounds(); if (b.isValid()) map.fitBounds(b, { padding: [40, 40], maxZoom: 15 }); } catch {}
     }
 
-    // Building markers — green circle markers
+    // Building markers
     buildings.forEach((b) => {
       if (b.lat && b.lon) {
         const isSelected = b.bdg_egid === selectedEgid;
         const marker = L.circleMarker([b.lat, b.lon], {
           radius: isSelected ? 8 : 5,
-          color: isSelected ? "hsl(152,80%,65%)" : "hsl(152,60%,45%)",
-          fillColor: isSelected ? "hsl(152,80%,65%)" : "hsl(152,55%,40%)",
+          color: isSelected ? "hsl(152,65%,35%)" : "hsl(152,50%,45%)",
+          fillColor: isSelected ? "hsl(152,60%,40%)" : "hsl(152,45%,50%)",
           fillOpacity: isSelected ? 0.9 : 0.7,
           weight: isSelected ? 3 : 1.5,
           ...(isSelected ? { className: "selected-building-marker" } : {}),
         }).addTo(layers);
         marker.on("click", () => onSelectBuilding(b.bdg_egid));
-        const popup = `<div style="font-size:13px;line-height:1.5;color:hsl(145,15%,90%);background:hsla(150,20%,8%,0.95);padding:10px 14px;border-radius:10px;border:1px solid hsla(152,60%,38%,0.3);">
+        const popup = `<div style="font-size:13px;line-height:1.5;color:hsl(150,10%,20%);background:hsl(0 0% 100% / 0.97);padding:10px 14px;border-radius:10px;border:1px solid hsl(145 15% 85%);">
           <strong>EGID ${b.bdg_egid}</strong>
           ${b.stn_label ? `<br/>${b.stn_label} ${b.adr_number ?? ""}` : ""}
           ${b.sommer_total != null ? `<br/>☀ ${Math.round(b.sommer_total).toLocaleString()} kWh` : ""}
           ${b.winter_total != null ? `<br/>❄ ${Math.round(b.winter_total).toLocaleString()} kWh` : ""}
         </div>`;
-        marker.bindPopup(popup, { className: "dark-popup" });
+        marker.bindPopup(popup);
       }
     });
 
     // Roof polygons + auto-zoom
     if (buildingRoofs) {
       const roofLayerGroup = L.featureGroup();
-
       buildingRoofs.parts.forEach((p) => {
         if (p.geojson) {
-          const partLayer = L.geoJSON({ type: "Feature", geometry: p.geojson, properties: {} } as any, {
-            style: roofPartStyle,
-          }).addTo(roofLayerGroup);
+          const partLayer = L.geoJSON({ type: "Feature", geometry: p.geojson, properties: {} } as any, { style: roofPartStyle }).addTo(roofLayerGroup);
           partLayer.on({
             mouseover: (e: any) => (e.target as L.Path).setStyle(roofPartHover),
             mouseout: (e: any) => (e.target as L.Path).setStyle(roofPartStyle),
@@ -209,30 +191,23 @@ export default function MapView({
         }
       });
       if (buildingRoofs.union) {
-        L.geoJSON({ type: "Feature", geometry: buildingRoofs.union, properties: {} } as any, {
-          style: roofUnionStyle,
-        }).addTo(roofLayerGroup);
+        L.geoJSON({ type: "Feature", geometry: buildingRoofs.union, properties: {} } as any, { style: roofUnionStyle }).addTo(roofLayerGroup);
       }
-
       roofLayerGroup.addTo(layers);
-
-      // Auto-zoom to roof polygons
       try {
         const roofBounds = roofLayerGroup.getBounds();
-        if (roofBounds.isValid()) {
-          map.fitBounds(roofBounds, { padding: [40, 40], animate: true, duration: 0.8, maxZoom: 19 });
-        }
+        if (roofBounds.isValid()) map.fitBounds(roofBounds, { padding: [40, 40], animate: true, duration: 0.8, maxZoom: 19 });
       } catch {}
     }
   }, [cantonsGeo, selectedCantonGeo, gemeindenGeo, selectedGemeindeGeo, buildings, buildingRoofs, selectedEgid, onSelectBuilding]);
 
   return (
-    <div className="relative w-full h-full rounded-xl overflow-hidden border border-primary/20 shadow-[0_0_30px_-5px_hsla(152,60%,38%,0.15)]">
+    <div className="relative w-full h-full rounded-xl overflow-hidden border border-border shadow-card">
       {loading && (
-        <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-[hsla(150,20%,6%,0.7)] backdrop-blur-sm">
+        <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-background/70 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-3">
             <div className="w-10 h-10 border-[3px] border-primary border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm font-medium text-[hsl(145,15%,70%)]">Loading map data…</span>
+            <span className="text-sm font-medium text-muted-foreground">Loading map data…</span>
           </div>
         </div>
       )}
