@@ -18,8 +18,8 @@ export default function MapPage() {
     <div className="flex flex-col min-h-[calc(100vh-4rem)] bg-gradient-to-b from-secondary to-background">
       {/* Top section: Map + Sidebar */}
       <div className="flex flex-1 min-h-[60vh] max-h-[75vh]">
-        {/* Map */}
-        <div className="flex-1 p-3">
+      {/* Map */}
+        <div className="flex-1 p-3 relative z-0">
           <MapView
             cantonsGeo={state.cantonsGeo}
             selectedCantonGeo={state.selectedCantonGeo}
