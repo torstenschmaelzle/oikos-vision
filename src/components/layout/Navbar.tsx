@@ -1,14 +1,22 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Sun, Map } from "lucide-react";
+import { Sun, Map, LogIn, LogOut, User, Loader2 } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 
 export default function Navbar() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { user, loading, logout } = useAuth();
 
   const links = [
     { to: "/", label: "Home", icon: Sun },
     { to: "/map", label: "Map", icon: Map },
   ];
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
 
   return (
     <motion.header
@@ -52,6 +60,34 @@ export default function Navbar() {
               </Link>
             );
           })}
+
+          <div className="w-px h-6 bg-border mx-2" />
+
+          {loading ? (
+            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+          ) : user ? (
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground px-3 py-1.5 rounded-lg bg-muted">
+                <User className="w-3.5 h-3.5" />
+                {user.email}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium gradient-primary text-primary-foreground shadow-glow hover:opacity-90 transition-opacity"
+            >
+              <LogIn className="w-4 h-4" />
+              Sign in
+            </Link>
+          )}
         </nav>
       </div>
     </motion.header>
