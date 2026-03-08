@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Users, Search, AlertCircle, UserX, Filter } from "lucide-react";
+import DeleteUserButton from "@/components/settings/DeleteUserButton";
 import { authApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { Navigate } from "react-router-dom";
@@ -187,6 +188,7 @@ export default function CantonSettingsPage() {
                       <TableHead>Status</TableHead>
                       <TableHead>Created</TableHead>
                       <TableHead>Last login</TableHead>
+                      <TableHead className="w-[60px]"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -207,6 +209,9 @@ export default function CantonSettingsPage() {
                         </TableCell>
                         <TableCell className="text-muted-foreground text-xs">{formatDate(u.created_at)}</TableCell>
                         <TableCell className="text-muted-foreground text-xs">{formatDate(u.last_login_at)}</TableCell>
+                        <TableCell>
+                          <DeleteUserButton userId={u.id} userEmail={u.email} queryKey="canton-users" />
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

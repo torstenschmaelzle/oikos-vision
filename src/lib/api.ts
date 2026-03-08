@@ -118,6 +118,31 @@ async function authPost<T>(path: string, body?: unknown): Promise<T> {
   return data;
 }
 
+/** Authenticated DELETE */
+async function authDelete<T>(path: string): Promise<T> {
+  const url = `${DEFAULT_BASE}${path}`;
+  console.info(`[Oikos API] → DELETE ${url}`);
+  const headers: Record<string, string> = { Accept: "application/json" };
+  if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
+  let res: Response;
+  try {
+    res = await fetch(url, { method: "DELETE", headers, credentials: "include" });
+  } catch (networkErr: any) {
+    const msg = networkErr?.message ?? "Unknown network error";
+    console.error(`[Oikos API] ✗ Network error for DELETE ${url}: ${msg}`);
+    throw new Error(`Network error: ${msg}`);
+  }
+  if (!res.ok) {
+    let detail = "";
+    try { const b = await res.json(); detail = b?.detail ?? ""; } catch {}
+    const message = `API ${res.status} from ${url}${detail ? `: ${detail.slice(0, 200)}` : ""}`;
+    console.error(`[Oikos API] ✗ ${message}`);
+    throw new Error(message);
+  }
+  console.info(`[Oikos API] ✓ ${res.status} ${url}`);
+  return res.json();
+}
+
 // ── Auth types ──────────────────────────────────────────────────────────
 export interface AuthUser {
   id: number;
@@ -153,6 +178,9 @@ export const authApi = {
     authPost<{ ok: boolean; message: string }>("/api/auth/create-canton-admin", { email, canton_code }),
 
   users: () => authFetch<Array<{ id: number; email: string; role: string; canton_code: string | null; is_active: boolean; created_at: string; last_login_at: string | null }>>("/api/auth/users"),
+
+  deleteUser: (userId: number) =>
+    authDelete<{ ok: boolean; message: string }>(`/api/auth/users/${userId}`),
 };
 
 // ── Public data API (corrected routes) ──────────────────────────────────
