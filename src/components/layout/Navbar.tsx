@@ -1,16 +1,15 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Sun, Map, LogIn, LogOut, User, Loader2 } from "lucide-react";
+import { Sun, LogIn, LogOut, User, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { getNavItemsForRole } from "@/lib/roles";
 
 export default function Navbar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { user, loading, logout } = useAuth();
 
-  const links = [
-    { to: "/map", label: "Map", icon: Map },
-  ];
+  const links = user ? getNavItemsForRole(user.role) : [];
 
   const handleLogout = async () => {
     await logout();
