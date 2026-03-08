@@ -6,11 +6,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth-context";
 import Navbar from "@/components/layout/Navbar";
 import DevDiagnostics from "@/components/DevDiagnostics";
-import HomePage from "./pages/HomePage";
 import MapPage from "./pages/MapPage";
 import LoginPage from "./pages/LoginPage";
 import SetupAccountPage from "./pages/SetupAccountPage";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import GuestRoute from "./components/auth/GuestRoute";
+import AuthRedirect from "./components/auth/AuthRedirect";
 
 const queryClient = new QueryClient();
 
