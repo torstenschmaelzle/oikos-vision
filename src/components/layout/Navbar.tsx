@@ -21,15 +21,15 @@ export default function Navbar() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4 }}
-      className="sticky top-0 z-50 glass border-b border-border/50"
+      className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border"
     >
-      <div className="max-w-[1600px] mx-auto flex items-center justify-between h-16 px-6">
+      <div className="max-w-[1600px] mx-auto flex items-center justify-between h-14 px-6">
         <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
-            <Sun className="w-5 h-5 text-primary-foreground" />
+          <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
+            <Sun className="w-4.5 h-4.5 text-primary-foreground" />
           </div>
-          <span className="font-display font-bold text-xl text-foreground tracking-tight">
-            Oikos <span className="text-gradient">Solar</span>
+          <span className="font-display font-bold text-lg text-foreground tracking-tight">
+            Oikos <span className="text-primary">Solar</span>
           </span>
         </Link>
 
@@ -40,7 +40,7 @@ export default function Navbar() {
               <Link
                 key={l.to}
                 to={l.to}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors ${
                   active
                     ? "text-primary bg-accent"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -51,7 +51,7 @@ export default function Navbar() {
                 {active && (
                   <motion.div
                     layoutId="nav-underline"
-                    className="absolute bottom-0 left-2 right-2 h-0.5 gradient-primary rounded-full"
+                    className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full"
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
@@ -59,19 +59,19 @@ export default function Navbar() {
             );
           })}
 
-          <div className="w-px h-6 bg-border mx-2" />
+          <div className="w-px h-5 bg-border mx-2" />
 
           {loading ? (
             <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
           ) : user ? (
             <div className="flex items-center gap-2">
-              <span className="flex items-center gap-1.5 text-xs text-muted-foreground px-3 py-1.5 rounded-lg bg-muted">
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground px-2.5 py-1.5 rounded-md bg-muted">
                 <User className="w-3.5 h-3.5" />
                 {user.email}
               </span>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 Sign out
@@ -80,7 +80,7 @@ export default function Navbar() {
           ) : (
             <Link
               to="/login"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium gradient-primary text-primary-foreground shadow-glow hover:opacity-90 transition-opacity"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
             >
               <LogIn className="w-4 h-4" />
               Sign in

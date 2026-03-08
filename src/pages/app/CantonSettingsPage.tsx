@@ -83,12 +83,12 @@ export default function CantonSettingsPage() {
   if (user?.role !== "canton_admin") return <Navigate to="/map" replace />;
 
   return (
-    <div className="flex-1 bg-gradient-to-b from-secondary to-background">
+    <div className="flex-1 bg-background">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        {/* 1. Intro */}
+        {/* Header */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-1">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
+            <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center">
               <Users className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
@@ -101,12 +101,11 @@ export default function CantonSettingsPage() {
           </div>
         </motion.div>
 
-        {/* 2. Invite */}
         <CantonInviteForm />
 
-        {/* 3. Filters */}
+        {/* Filters */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.05 }}>
-          <div className="rounded-xl border bg-card p-4 shadow-sm space-y-3">
+          <div className="rounded-lg border bg-card p-4 shadow-soft space-y-3">
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-primary" />
               <h2 className="text-sm font-semibold text-foreground">Filter Users</h2>
@@ -150,7 +149,7 @@ export default function CantonSettingsPage() {
           </div>
         </motion.div>
 
-        {/* 4. Users list */}
+        {/* Users list */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.1 }}>
           <div className="space-y-3">
             <div className="flex items-center gap-2">
@@ -163,7 +162,7 @@ export default function CantonSettingsPage() {
             {isLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="h-12 w-full rounded-lg" />
+                  <Skeleton key={i} className="h-12 w-full rounded-md" />
                 ))}
               </div>
             ) : isError ? (
@@ -178,10 +177,10 @@ export default function CantonSettingsPage() {
                 <p className="text-sm font-medium">No users match the current filters</p>
               </div>
             ) : (
-              <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+              <div className="rounded-lg border bg-card shadow-soft overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-muted/40">
+                    <TableRow className="bg-muted/50">
                       <TableHead>Email</TableHead>
                       <TableHead>Role</TableHead>
                       <TableHead>Canton</TableHead>

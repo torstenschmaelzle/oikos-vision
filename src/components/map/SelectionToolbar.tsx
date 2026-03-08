@@ -51,8 +51,8 @@ function SearchableSelect<T extends { label: string; value: number }>({
   return (
     <div ref={containerRef} className="relative">
       <div
-        className={`flex items-center gap-2 w-full rounded-lg border px-3 py-2 text-sm transition-all cursor-pointer ${
-          open ? "border-primary ring-2 ring-primary/20 bg-background" : "border-input hover:border-primary/40 bg-background"
+        className={`flex items-center gap-2 w-full rounded-md border px-3 py-2 text-sm transition-all cursor-pointer ${
+          open ? "border-primary ring-2 ring-ring/20 bg-background" : "border-input hover:border-primary/40 bg-background"
         } ${disabled ? "opacity-50 pointer-events-none" : ""}`}
         onClick={() => { if (!disabled) { setOpen(true); setTimeout(() => inputRef.current?.focus()); } }}
       >
@@ -75,7 +75,7 @@ function SearchableSelect<T extends { label: string; value: number }>({
       <AnimatePresence>
         {open && (
           <motion.div initial={{ opacity: 0, y: -4, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }} transition={{ duration: 0.15 }}
-            ref={listRef} className="absolute z-50 mt-1 w-full max-h-52 overflow-y-auto rounded-lg border border-border bg-popover shadow-elevated">
+            ref={listRef} className="absolute z-50 mt-1 w-full max-h-52 overflow-y-auto rounded-md border border-border bg-popover shadow-elevated">
             {filtered.length === 0 ? (
               <div className="px-3 py-4 text-xs text-muted-foreground text-center">No results found</div>
             ) : (
@@ -114,7 +114,7 @@ export default function SelectionToolbar({ cantons, gemeinden, selectedCantonId,
       </div>
       <div className="space-y-2">
         <label className="text-xs font-medium text-muted-foreground flex items-center gap-1"><Hash className="w-3 h-3" /> Limit</label>
-        <select className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-shadow disabled:opacity-50"
+        <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 transition-shadow disabled:opacity-50"
           value={limit} onChange={(e) => onSetLimit(Number(e.target.value))} disabled={disabled}>
           {[20, 40, 60, 80, 100, 150, 200].map((n) => <option key={n} value={n}>{n}</option>)}
         </select>

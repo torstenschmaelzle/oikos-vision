@@ -17,8 +17,6 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import LogEntry from "@/components/settings/LogEntry";
 
-// ── Types ───────────────────────────────────────────────────────────────
-
 interface LogLine {
   timestamp: string;
   level: string;
@@ -39,29 +37,12 @@ const CHANNELS: {
   description: string;
   icon: React.ElementType;
 }[] = [
-  {
-    value: "app",
-    label: "App Logs",
-    description: "General backend activity",
-    icon: AppWindow,
-  },
-  {
-    value: "auth",
-    label: "Authentication Logs",
-    description: "Login, refresh, logout & invite events",
-    icon: ShieldCheck,
-  },
-  {
-    value: "error",
-    label: "Error Logs",
-    description: "Backend failures and problems",
-    icon: AlertTriangle,
-  },
+  { value: "app", label: "App Logs", description: "General backend activity", icon: AppWindow },
+  { value: "auth", label: "Authentication Logs", description: "Login, refresh, logout & invite events", icon: ShieldCheck },
+  { value: "error", label: "Error Logs", description: "Backend failures and problems", icon: AlertTriangle },
 ];
 
 const DEFAULT_VISIBLE = 10;
-
-// ── Fetch helper ────────────────────────────────────────────────────────
 
 async function fetchLogs(channel: LogChannel): Promise<LogResponse> {
   const { getAccessToken } = await import("@/lib/api");
@@ -72,16 +53,11 @@ async function fetchLogs(channel: LogChannel): Promise<LogResponse> {
   const res = await fetch(url, { method: "GET", headers, credentials: "include" });
   if (!res.ok) {
     let detail = "";
-    try {
-      const b = await res.json();
-      detail = b?.detail ?? "";
-    } catch {}
+    try { const b = await res.json(); detail = b?.detail ?? ""; } catch {}
     throw new Error(`API ${res.status}${detail ? `: ${detail.slice(0, 200)}` : ""}`);
   }
   return res.json();
 }
-
-// ── Component ───────────────────────────────────────────────────────────
 
 export default function ApiSettingsPage() {
   const { user } = useAuth();
@@ -93,7 +69,6 @@ export default function ApiSettingsPage() {
     staleTime: 15_000,
   });
 
-  // Newest first, limited to DEFAULT_VISIBLE
   const lines = useMemo(
     () => (data?.lines ?? []).slice().sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, DEFAULT_VISIBLE),
     [data],
@@ -104,9 +79,9 @@ export default function ApiSettingsPage() {
   const activeChannel = CHANNELS.find((c) => c.value === channel)!;
 
   return (
-    <div className="flex-1 bg-gradient-to-b from-secondary to-background">
+    <div className="flex-1 bg-background">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        {/* ── Header ─────────────────────────────────────────────── */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -114,7 +89,7 @@ export default function ApiSettingsPage() {
           className="flex items-center justify-between"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
+            <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center">
               <Cpu className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
@@ -137,7 +112,7 @@ export default function ApiSettingsPage() {
           </Button>
         </motion.div>
 
-        {/* ── Channel selectors ──────────────────────────────────── */}
+        {/* Channel selectors */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -152,69 +127,54 @@ export default function ApiSettingsPage() {
                 key={c.value}
                 onClick={() => setChannel(c.value)}
                 className={`
-                  relative flex items-start gap-3 rounded-xl border p-4 text-left transition-all duration-200
+                  relative flex items-start gap-3 rounded-lg border p-4 text-left transition-all duration-150
                   ${
                     isActive
-                      ? "border-primary/50 bg-primary/5 shadow-md ring-1 ring-primary/20"
+                      ? "border-primary bg-accent shadow-soft ring-1 ring-primary/20"
                       : "border-border bg-card hover:border-primary/30 hover:bg-muted/40"
                   }
                 `}
               >
                 <div
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                  className={`w-9 h-9 rounded-md flex items-center justify-center shrink-0 ${
                     isActive
-                      ? "bg-primary/15 text-primary"
+                      ? "bg-primary/10 text-primary"
                       : "bg-muted text-muted-foreground"
                   }`}
                 >
                   <Icon className="w-4.5 h-4.5" />
                 </div>
                 <div className="min-w-0">
-                  <p
-                    className={`text-sm font-semibold ${
-                      isActive ? "text-primary" : "text-foreground"
-                    }`}
-                  >
+                  <p className={`text-sm font-semibold ${isActive ? "text-primary" : "text-foreground"}`}>
                     {c.label}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
                     {c.description}
                   </p>
                 </div>
-                {isActive && (
-                  <motion.div
-                    layoutId="channel-indicator"
-                    className="absolute inset-0 rounded-xl border-2 border-primary/40 pointer-events-none"
-                    transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
-                  />
-                )}
               </button>
             );
           })}
         </motion.div>
 
-        {/* ── Log viewer panel ───────────────────────────────────── */}
+        {/* Log viewer */}
         <motion.div
           key={channel}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
-          className="rounded-xl border bg-card shadow-sm overflow-hidden"
+          className="rounded-lg border bg-card shadow-soft overflow-hidden"
         >
-          {/* Panel header */}
           <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/30">
             <div className="flex items-center gap-2">
               <activeChannel.icon className="w-4 h-4 text-primary" />
-              <span className="text-sm font-semibold text-foreground">
-                {activeChannel.label}
-              </span>
+              <span className="text-sm font-semibold text-foreground">{activeChannel.label}</span>
             </div>
             <span className="text-xs text-muted-foreground tabular-nums">
               Showing {lines.length} of {data?.lines?.length ?? 0} entries
             </span>
           </div>
 
-          {/* Content */}
           {isLoading ? (
             <div className="p-4 space-y-3">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -247,12 +207,9 @@ export default function ApiSettingsPage() {
             </ScrollArea>
           )}
 
-          {/* Footer */}
           {!isLoading && !isError && lines.length > 0 && (
             <div className="px-4 py-2.5 border-t bg-muted/20 flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground font-mono">
-                {data?.file}
-              </span>
+              <span className="text-[11px] text-muted-foreground font-mono">{data?.file}</span>
               <span className="text-[11px] text-muted-foreground tabular-nums">
                 {lines.length} entr{lines.length !== 1 ? "ies" : "y"} · newest first
               </span>

@@ -15,21 +15,21 @@ function BuildingCard({ b, selected, onSelect, index }: { b: Building; selected:
   const inView = useInView(ref, { once: true, margin: "-40px" });
 
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: Math.min(index * 0.04, 0.4), ease: [0.22, 1, 0.36, 1] }}>
+    <motion.div ref={ref} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.4, delay: Math.min(index * 0.04, 0.4), ease: [0.22, 1, 0.36, 1] }}>
       <motion.button
         onClick={onSelect}
-        whileHover={{ y: -3, boxShadow: "0 8px 24px -6px hsl(150 30% 30% / 0.12)" }}
+        whileHover={{ y: -2 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className={`w-full text-left p-5 rounded-2xl border transition-all group ${
+        className={`w-full text-left p-4 rounded-lg border transition-all ${
           selected
-            ? "border-primary bg-accent shadow-card ring-1 ring-primary/30"
-            : "border-border bg-card hover:border-primary/30 hover:bg-secondary/50"
+            ? "border-primary bg-accent shadow-card ring-1 ring-primary/20"
+            : "border-border bg-card hover:border-primary/30 hover:shadow-card"
         }`}
       >
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-2.5">
           <span className="font-display font-semibold text-sm text-foreground">EGID {b.bdg_egid}</span>
           {b.roof_rows != null && (
-            <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+            <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
               <Layers className="w-3 h-3" /> {b.roof_rows} roofs
             </span>
           )}
@@ -76,7 +76,7 @@ export default function ResultsList({ buildings, selectedEgid, onSelect, loading
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="h-36 rounded-2xl bg-muted animate-pulse" />
+          <div key={i} className="h-36 rounded-lg bg-muted animate-pulse" />
         ))}
       </div>
     );
