@@ -12,7 +12,7 @@ export interface NavItem {
 
 export const navItems: NavItem[] = [
   { to: "/map", label: "Map", icon: Map, roles: ["superadmin", "canton_admin", "canton_viewer"] },
-  { to: "/settings", label: "Settings", icon: Settings, roles: ["superadmin", "canton_admin"] },
+  { to: "/settings", label: "User Settings", icon: Settings, roles: ["superadmin"] },
 ];
 
 export function getNavItemsForRole(role: AppRole): NavItem[] {

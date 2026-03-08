@@ -38,7 +38,7 @@ const App = () => (
               <Route
                 path="/settings"
                 element={
-                  <RoleGuard allowed={["superadmin", "canton_admin"]}>
+                  <RoleGuard allowed={["superadmin"]}>
                     <SettingsPage />
                   </RoleGuard>
                 }
