@@ -16,8 +16,15 @@ import ApiSettingsPage from "@/pages/app/ApiSettingsPage";
 import LoginPage from "@/pages/public/LoginPage";
 import SetupAccountPage from "@/pages/public/SetupAccountPage";
 import NotFound from "@/pages/public/NotFound";
+import { useAuth } from "@/lib/auth-context";
 
 const queryClient = new QueryClient();
+
+function SettingsRouter() {
+  const { user } = useAuth();
+  if (user?.role === "canton_admin") return <CantonSettingsPage />;
+  return <SettingsPage />;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
