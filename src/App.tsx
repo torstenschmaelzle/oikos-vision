@@ -26,11 +26,10 @@ const App = () => (
           <div className="flex flex-col min-h-screen">
             <Navbar />
             <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/map" element={<MapPage />} />
-              <Route path="/login" element={<LoginPage />} />
+              <Route path="/" element={<AuthRedirect />} />
+              <Route path="/map" element={<ProtectedRoute><MapPage /></ProtectedRoute>} />
+              <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
               <Route path="/setup-account" element={<SetupAccountPage />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
