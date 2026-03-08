@@ -208,6 +208,7 @@ export default function SettingsPage() {
                       <TableHead>Status</TableHead>
                       <TableHead>Created</TableHead>
                       <TableHead>Last login</TableHead>
+                      <TableHead className="w-[60px]"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -228,6 +229,9 @@ export default function SettingsPage() {
                         </TableCell>
                         <TableCell className="text-muted-foreground text-xs">{formatDate(u.created_at)}</TableCell>
                         <TableCell className="text-muted-foreground text-xs">{formatDate(u.last_login_at)}</TableCell>
+                        <TableCell>
+                          <DeleteUserButton userId={u.id} userEmail={u.email} queryKey="admin-users" />
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
