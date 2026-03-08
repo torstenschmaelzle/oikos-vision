@@ -2,12 +2,13 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
-  Terminal,
+  Cpu,
   AlertCircle,
   RefreshCw,
   AppWindow,
   ShieldCheck,
   AlertTriangle,
+  Terminal,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Navigate } from "react-router-dom";
@@ -114,7 +115,7 @@ export default function ApiSettingsPage() {
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
-              <Terminal className="w-5 h-5 text-primary-foreground" />
+              <Cpu className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
               <h1 className="font-display text-2xl font-bold text-foreground">API Settings</h1>
