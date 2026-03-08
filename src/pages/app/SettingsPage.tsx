@@ -56,9 +56,6 @@ function formatDate(iso: string | null): string {
 export default function SettingsPage() {
   const { user } = useAuth();
 
-  // Extra guard: only superadmin
-  if (user?.role !== "superadmin") return <Navigate to="/map" replace />;
-
   const [roleFilter, setRoleFilter] = useState("canton_admin");
   const [cantonFilter, setCantonFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
