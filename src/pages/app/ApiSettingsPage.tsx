@@ -2,12 +2,13 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
-  Terminal,
+  Cpu,
   AlertCircle,
   RefreshCw,
   AppWindow,
   ShieldCheck,
   AlertTriangle,
+  Terminal,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Navigate } from "react-router-dom";
