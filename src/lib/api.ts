@@ -178,6 +178,9 @@ export const authApi = {
     authPost<{ ok: boolean; message: string }>("/api/auth/create-canton-admin", { email, canton_code }),
 
   users: () => authFetch<Array<{ id: number; email: string; role: string; canton_code: string | null; is_active: boolean; created_at: string; last_login_at: string | null }>>("/api/auth/users"),
+
+  deleteUser: (userId: number) =>
+    authDelete<{ ok: boolean; message: string }>(`/api/auth/users/${userId}`),
 };
 
 // ── Public data API (corrected routes) ──────────────────────────────────
