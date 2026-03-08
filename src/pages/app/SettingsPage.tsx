@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Users, Search, AlertCircle, UserX } from "lucide-react";
 import { authApi } from "@/lib/api";
+import InviteUserForm from "@/components/settings/InviteUserForm";
 import { useAuth } from "@/lib/auth-context";
 import { Navigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
