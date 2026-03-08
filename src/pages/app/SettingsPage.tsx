@@ -90,6 +90,9 @@ export default function SettingsPage() {
       .sort((a, b) => a.email.localeCompare(b.email));
   }, [users, roleFilter, cantonFilter, statusFilter, search]);
 
+  // Guard: only superadmin
+  if (user?.role !== "superadmin") return <Navigate to="/map" replace />;
+
   return (
     <div className="flex-1 bg-gradient-to-b from-secondary to-background">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
