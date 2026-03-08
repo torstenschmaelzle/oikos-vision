@@ -40,8 +40,9 @@ export default function CantonInviteForm() {
       <form onSubmit={handleSubmit} className="rounded-xl border bg-card p-5 shadow-sm space-y-4">
         <div className="flex items-center gap-2 mb-1">
           <UserPlus className="w-4 h-4 text-primary" />
-          <h2 className="text-sm font-semibold text-foreground">Invite Canton Viewer</h2>
+          <h2 className="text-sm font-semibold text-foreground">Invite User</h2>
         </div>
+        <p className="text-xs text-muted-foreground">Invite a new canton viewer for your canton.</p>
 
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1.5 flex-1 min-w-[220px]">
@@ -65,10 +66,6 @@ export default function CantonInviteForm() {
             Send Invite
           </Button>
         </div>
-
-        <p className="text-xs text-muted-foreground">
-          The user will be invited as a <span className="font-medium">Canton Viewer</span> in your canton.
-        </p>
       </form>
     </motion.div>
   );
