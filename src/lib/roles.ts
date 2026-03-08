@@ -1,4 +1,4 @@
-import { Map, Settings, Terminal, LucideIcon } from "lucide-react";
+import { Map, Settings, Cpu, LucideIcon } from "lucide-react";
 import type { AuthUser } from "./api";
 
 export type AppRole = AuthUser["role"];
