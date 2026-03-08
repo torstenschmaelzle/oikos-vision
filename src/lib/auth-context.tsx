@@ -29,10 +29,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Try refresh on mount
   useEffect(() => {
+    console.info("[Auth] Attempting silent refresh on mount…");
     authApi
       .refresh()
-      .then(handleLoginResponse)
-      .catch(() => {
+      .then((res) => {
+        console.info("[Auth] Silent refresh succeeded, user:", res.user?.email);
+        handleLoginResponse(res);
+      })
+      .catch((err) => {
+        console.info("[Auth] Silent refresh failed (expected if no session):", err?.message);
         setAccessToken(null);
         setUser(null);
       })

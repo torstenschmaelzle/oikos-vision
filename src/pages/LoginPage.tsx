@@ -17,10 +17,22 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
+      console.info("[Login] Starting login…");
       await login(email, password);
+      console.info("[Login] Login succeeded, navigating to /map");
       navigate("/map");
     } catch (err: any) {
-      setError(err.message?.includes("401") ? "Invalid email or password" : err.message || "Login failed");
+      const msg = err?.message ?? "Login failed";
+      console.error("[Login] Error:", msg);
+      if (msg.includes("CORS") || msg.includes("Network")) {
+        setError("Cannot reach the server. The backend may need to allow this origin in its CORS settings.");
+      } else if (msg.includes("401")) {
+        setError("Invalid email or password.");
+      } else if (msg.includes("403")) {
+        setError("Account not activated or temporarily locked.");
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }

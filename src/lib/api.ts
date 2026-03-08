@@ -76,12 +76,28 @@ async function authPost<T>(path: string, body?: unknown): Promise<T> {
     "Content-Type": "application/json",
   };
   if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers,
-    credentials: "include",
-    body: body ? JSON.stringify(body) : undefined,
-  });
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers,
+      credentials: "include",
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch (networkErr: any) {
+    // fetch() itself threw — typically CORS block or network offline
+    const msg = networkErr?.message ?? "Unknown network error";
+    console.error(`[Oikos API] ✗ Network error for POST ${url}: ${msg}`);
+    if (msg === "Load failed" || msg === "Failed to fetch") {
+      throw new Error(
+        `Network/CORS error: The browser blocked the request to ${url}. ` +
+        `This usually means the backend must add this origin to CORS: ${window.location.origin}`
+      );
+    }
+    throw new Error(`Network error: ${msg}`);
+  }
+
   if (!res.ok) {
     let detail = "";
     try { const b = await res.json(); detail = b?.detail ?? ""; } catch {}
@@ -89,8 +105,17 @@ async function authPost<T>(path: string, body?: unknown): Promise<T> {
     console.error(`[Oikos API] ✗ ${message}`);
     throw new Error(message);
   }
+
   console.info(`[Oikos API] ✓ ${res.status} ${url}`);
-  return res.json();
+  let data: T;
+  try {
+    data = await res.json();
+  } catch (parseErr) {
+    console.error(`[Oikos API] ✗ JSON parse failed for ${url}`);
+    throw new Error("Response parsing failed — expected JSON");
+  }
+  console.info(`[Oikos API] ✓ Parsed response from ${url}`);
+  return data;
 }
 
 // ── Auth types ──────────────────────────────────────────────────────────
