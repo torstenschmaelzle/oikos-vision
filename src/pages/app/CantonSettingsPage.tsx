@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Users, Search, AlertCircle, UserX, Filter } from "lucide-react";
+import DeleteUserButton from "@/components/settings/DeleteUserButton";
 import { authApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { Navigate } from "react-router-dom";
