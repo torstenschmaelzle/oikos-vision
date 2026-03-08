@@ -43,6 +43,14 @@ const App = () => (
                     <SettingsPage />
                   </RoleGuard>
                 }
+                />
+              <Route
+                path="/api-settings"
+                element={
+                  <RoleGuard allowed={["superadmin"]}>
+                    <ApiSettingsPage />
+                  </RoleGuard>
+                }
               />
             </Route>
 
