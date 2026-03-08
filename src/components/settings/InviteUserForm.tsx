@@ -66,9 +66,9 @@ export default function InviteUserForm() {
           <UserPlus className="w-4 h-4 text-primary" />
           <h2 className="text-sm font-semibold text-foreground">Invite User</h2>
         </div>
+        <p className="text-xs text-muted-foreground">Invite a new canton admin or canton viewer.</p>
 
         <div className="flex flex-wrap items-end gap-3">
-          {/* Role */}
           <div className="space-y-1.5 min-w-[150px]">
             <Label className="text-xs text-muted-foreground">Role</Label>
             <Select value={role} onValueChange={(v) => setRole(v as InviteRole)}>
@@ -81,7 +81,6 @@ export default function InviteUserForm() {
             </Select>
           </div>
 
-          {/* Email */}
           <div className="space-y-1.5 flex-1 min-w-[220px]">
             <Label className="text-xs text-muted-foreground">Email</Label>
             <Input
@@ -94,7 +93,6 @@ export default function InviteUserForm() {
             />
           </div>
 
-          {/* Canton (conditional) */}
           {needsCanton && (
             <div className="space-y-1.5 min-w-[100px] w-[120px]">
               <Label className="text-xs text-muted-foreground">Canton Code</Label>
@@ -109,7 +107,6 @@ export default function InviteUserForm() {
             </div>
           )}
 
-          {/* Submit */}
           <Button type="submit" size="sm" className="h-9 gap-1.5" disabled={!canSubmit}>
             {mutation.isPending ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
