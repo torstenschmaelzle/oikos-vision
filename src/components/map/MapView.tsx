@@ -34,21 +34,21 @@ function createTooltipDiv() {
   const div = document.createElement("div");
   div.className = "map-feature-tooltip";
   div.style.cssText =
-    "position:absolute;z-index:1000;pointer-events:none;opacity:0;transition:opacity 0.15s;padding:8px 14px;border-radius:10px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.5;white-space:nowrap;background:hsl(0 0% 100% / 0.95);border:1px solid hsl(145 15% 85%);box-shadow:0 4px 16px -4px hsl(150 20% 20% / 0.15);color:hsl(150 10% 20%)";
+    "position:absolute;z-index:1000;pointer-events:none;opacity:0;transition:opacity 0.15s;padding:6px 12px;border-radius:6px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.5;white-space:nowrap;background:hsl(0 0% 100% / 0.96);border:1px solid hsl(215 12% 85%);box-shadow:0 2px 8px -2px hsl(220 14% 14% / 0.1);color:hsl(220 14% 14%)";
   document.body.appendChild(div);
   return div;
 }
 
-// Light-theme map styles
-const cantonStyle: L.PathOptions = { color: "hsl(152,50%,38%)", weight: 1.5, fillOpacity: 0.06, fillColor: "hsl(152,50%,50%)" };
-const cantonHover: L.PathOptions = { weight: 2.5, fillOpacity: 0.15, color: "hsl(152,60%,35%)" };
-const selectedCantonStyle: L.PathOptions = { color: "hsl(152,55%,40%)", weight: 2.5, fillOpacity: 0.1, fillColor: "hsl(152,50%,50%)" };
-const gemeindeStyle: L.PathOptions = { color: "hsl(152,40%,50%)", weight: 1, fillOpacity: 0.04, fillColor: "hsl(152,40%,55%)", dashArray: "4 4" };
-const gemeindeHover: L.PathOptions = { weight: 2, fillOpacity: 0.12, color: "hsl(152,55%,40%)" };
-const gemeindeBoundaryStyle: L.PathOptions = { color: "hsl(152,55%,40%)", weight: 3, fillOpacity: 0.08, fillColor: "hsl(152,50%,50%)" };
-const roofPartStyle: L.PathOptions = { color: "hsl(152,60%,35%)", weight: 2, fillOpacity: 0.25, fillColor: "hsl(152,55%,45%)" };
-const roofPartHover: L.PathOptions = { fillOpacity: 0.4, weight: 2.5, color: "hsl(152,65%,30%)" };
-const roofUnionStyle: L.PathOptions = { color: "hsl(152,70%,40%)", weight: 2, fillOpacity: 0.08, fillColor: "hsl(152,60%,50%)", dashArray: "6 4" };
+// Restrained industrial map styles — muted teal/slate
+const cantonStyle: L.PathOptions = { color: "hsl(160,28%,38%)", weight: 1.5, fillOpacity: 0.05, fillColor: "hsl(160,24%,45%)" };
+const cantonHover: L.PathOptions = { weight: 2, fillOpacity: 0.12, color: "hsl(160,32%,32%)" };
+const selectedCantonStyle: L.PathOptions = { color: "hsl(160,30%,35%)", weight: 2.5, fillOpacity: 0.08, fillColor: "hsl(160,24%,45%)" };
+const gemeindeStyle: L.PathOptions = { color: "hsl(160,20%,50%)", weight: 1, fillOpacity: 0.03, fillColor: "hsl(160,20%,55%)", dashArray: "4 4" };
+const gemeindeHover: L.PathOptions = { weight: 2, fillOpacity: 0.1, color: "hsl(160,28%,38%)" };
+const gemeindeBoundaryStyle: L.PathOptions = { color: "hsl(160,30%,35%)", weight: 2.5, fillOpacity: 0.06, fillColor: "hsl(160,24%,45%)" };
+const roofPartStyle: L.PathOptions = { color: "hsl(160,30%,32%)", weight: 2, fillOpacity: 0.2, fillColor: "hsl(160,28%,40%)" };
+const roofPartHover: L.PathOptions = { fillOpacity: 0.35, weight: 2.5, color: "hsl(160,35%,28%)" };
+const roofUnionStyle: L.PathOptions = { color: "hsl(160,32%,36%)", weight: 2, fillOpacity: 0.06, fillColor: "hsl(160,28%,45%)", dashArray: "6 4" };
 
 export default function MapView({
   cantonsGeo,
@@ -110,7 +110,6 @@ export default function MapView({
       if (tip) tip.style.opacity = "0";
     };
 
-    // Canton borders
     if (!selectedCantonGeo && cantonsGeo) {
       L.geoJSON(cantonsGeo as any, {
         style: cantonStyle,
@@ -155,20 +154,19 @@ export default function MapView({
       try { const b = layer.getBounds(); if (b.isValid()) map.fitBounds(b, { padding: [40, 40], maxZoom: 15 }); } catch {}
     }
 
-    // Building markers
     buildings.forEach((b) => {
       if (b.lat && b.lon) {
         const isSelected = b.bdg_egid === selectedEgid;
         const marker = L.circleMarker([b.lat, b.lon], {
-          radius: isSelected ? 8 : 5,
-          color: isSelected ? "hsl(152,65%,35%)" : "hsl(152,50%,45%)",
-          fillColor: isSelected ? "hsl(152,60%,40%)" : "hsl(152,45%,50%)",
-          fillOpacity: isSelected ? 0.9 : 0.7,
-          weight: isSelected ? 3 : 1.5,
+          radius: isSelected ? 7 : 5,
+          color: isSelected ? "hsl(160,30%,30%)" : "hsl(160,24%,42%)",
+          fillColor: isSelected ? "hsl(160,28%,36%)" : "hsl(160,20%,48%)",
+          fillOpacity: isSelected ? 0.85 : 0.65,
+          weight: isSelected ? 2.5 : 1.5,
           ...(isSelected ? { className: "selected-building-marker" } : {}),
         }).addTo(layers);
         marker.on("click", () => onSelectBuilding(b.bdg_egid));
-        const popup = `<div style="font-size:13px;line-height:1.5;color:hsl(150,10%,20%);background:hsl(0 0% 100% / 0.97);padding:10px 14px;border-radius:10px;border:1px solid hsl(145 15% 85%);">
+        const popup = `<div style="font-size:13px;line-height:1.5;color:hsl(220,14%,14%);background:hsl(0 0% 100% / 0.97);padding:8px 12px;border-radius:6px;border:1px solid hsl(215 12% 85%);">
           <strong>EGID ${b.bdg_egid}</strong>
           ${b.stn_label ? `<br/>${b.stn_label} ${b.adr_number ?? ""}` : ""}
           ${b.sommer_total != null ? `<br/>☀ ${Math.round(b.sommer_total).toLocaleString()} kWh` : ""}
@@ -178,7 +176,6 @@ export default function MapView({
       }
     });
 
-    // Roof polygons + auto-zoom
     if (buildingRoofs) {
       const roofLayerGroup = L.featureGroup();
       buildingRoofs.parts.forEach((p) => {
@@ -202,7 +199,7 @@ export default function MapView({
   }, [cantonsGeo, selectedCantonGeo, gemeindenGeo, selectedGemeindeGeo, buildings, buildingRoofs, selectedEgid, onSelectBuilding]);
 
   return (
-    <div className="relative w-full h-full rounded-xl overflow-hidden border border-border shadow-card">
+    <div className="relative w-full h-full rounded-lg overflow-hidden border border-border shadow-card">
       {loading && (
         <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-background/70 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-3">

@@ -15,7 +15,7 @@ export default function MapPage() {
     : null;
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-4rem)] bg-gradient-to-b from-secondary to-background">
+    <div className="flex flex-col min-h-[calc(100vh-3.5rem)] bg-background">
       {/* Top section: Map + Sidebar */}
       <div className="flex flex-1 min-h-[60vh] max-h-[75vh]">
       {/* Map */}
@@ -33,12 +33,12 @@ export default function MapPage() {
           />
         </div>
 
-        {/* Sidebar — light glass panel */}
+        {/* Sidebar */}
         <motion.aside
           initial={{ x: 40, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4 }}
-          className="w-[320px] border-l border-border bg-card/90 backdrop-blur-md overflow-y-auto shrink-0"
+          className="w-[320px] border-l border-border bg-card overflow-y-auto shrink-0"
         >
           <div className="p-4 space-y-5">
             <AnimatePresence>
@@ -47,7 +47,7 @@ export default function MapPage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-xs border border-destructive/20"
+                  className="flex items-start gap-2 p-3 rounded-md bg-destructive/10 text-destructive text-xs border border-destructive/20"
                 >
                   <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
                   <span>{state.error}</span>
@@ -58,7 +58,7 @@ export default function MapPage() {
             {state.initialLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="h-10 rounded-lg bg-muted animate-pulse" />
+                  <div key={i} className="h-10 rounded-md bg-muted animate-pulse" />
                 ))}
               </div>
             ) : (
@@ -91,7 +91,7 @@ export default function MapPage() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="sticky top-16 z-30 bg-card/95 backdrop-blur-md border-y border-border px-6 py-3 flex items-center justify-between"
+            className="sticky top-14 z-30 bg-card border-y border-border px-6 py-2.5 flex items-center justify-between"
           >
             <div className="flex items-center gap-3 text-sm">
               <Building2 className="w-4 h-4 text-primary" />
@@ -104,7 +104,7 @@ export default function MapPage() {
             </div>
             <button
               onClick={() => state.selectBuilding(null)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted"
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-md hover:bg-muted"
             >
               <X className="w-3.5 h-3.5" />
               Clear selection
