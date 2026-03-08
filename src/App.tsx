@@ -4,15 +4,16 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth-context";
-import Navbar from "@/components/layout/Navbar";
-import DevDiagnostics from "@/components/DevDiagnostics";
-import MapPage from "./pages/MapPage";
-import LoginPage from "./pages/LoginPage";
-import SetupAccountPage from "./pages/SetupAccountPage";
-import NotFound from "./pages/NotFound";
-import ProtectedRoute from "./components/auth/ProtectedRoute";
-import GuestRoute from "./components/auth/GuestRoute";
-import AuthRedirect from "./components/auth/AuthRedirect";
+import AppShell from "@/components/layout/AppShell";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import GuestRoute from "@/components/auth/GuestRoute";
+import AuthRedirect from "@/components/auth/AuthRedirect";
+import RoleGuard from "@/components/auth/RoleGuard";
+import MapPage from "@/pages/app/MapPage";
+import SettingsPage from "@/pages/app/SettingsPage";
+import LoginPage from "@/pages/public/LoginPage";
+import SetupAccountPage from "@/pages/public/SetupAccountPage";
+import NotFound from "@/pages/public/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -23,19 +24,31 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <Routes>
-              <Route path="/" element={<AuthRedirect />} />
-              <Route path="/map" element={<ProtectedRoute><MapPage /></ProtectedRoute>} />
-              <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
-              <Route path="/setup-account" element={<SetupAccountPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+            <Route path="/setup-account" element={<SetupAccountPage />} />
+
+            {/* Auth redirect */}
+            <Route path="/" element={<AuthRedirect />} />
+
+            {/* Authenticated routes inside AppShell */}
+            <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
+              <Route path="/map" element={<MapPage />} />
+              <Route
+                path="/settings"
+                element={
+                  <RoleGuard allowed={["superadmin", "canton_admin"]}>
+                    <SettingsPage />
+                  </RoleGuard>
+                }
+              />
+            </Route>
+
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </AuthProvider>
       </BrowserRouter>
-      <DevDiagnostics />
     </TooltipProvider>
   </QueryClientProvider>
 );
