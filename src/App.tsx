@@ -11,12 +11,20 @@ import AuthRedirect from "@/components/auth/AuthRedirect";
 import RoleGuard from "@/components/auth/RoleGuard";
 import MapPage from "@/pages/app/MapPage";
 import SettingsPage from "@/pages/app/SettingsPage";
+import CantonSettingsPage from "@/pages/app/CantonSettingsPage";
 import ApiSettingsPage from "@/pages/app/ApiSettingsPage";
 import LoginPage from "@/pages/public/LoginPage";
 import SetupAccountPage from "@/pages/public/SetupAccountPage";
 import NotFound from "@/pages/public/NotFound";
+import { useAuth } from "@/lib/auth-context";
 
 const queryClient = new QueryClient();
+
+function SettingsRouter() {
+  const { user } = useAuth();
+  if (user?.role === "canton_admin") return <CantonSettingsPage />;
+  return <SettingsPage />;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -39,11 +47,11 @@ const App = () => (
               <Route
                 path="/settings"
                 element={
-                  <RoleGuard allowed={["superadmin"]}>
-                    <SettingsPage />
+                  <RoleGuard allowed={["superadmin", "canton_admin"]}>
+                    <SettingsRouter />
                   </RoleGuard>
                 }
-                />
+              />
               <Route
                 path="/api-settings"
                 element={
