@@ -11,6 +11,7 @@ import AuthRedirect from "@/components/auth/AuthRedirect";
 import RoleGuard from "@/components/auth/RoleGuard";
 import MapPage from "@/pages/app/MapPage";
 import SettingsPage from "@/pages/app/SettingsPage";
+import ApiSettingsPage from "@/pages/app/ApiSettingsPage";
 import LoginPage from "@/pages/public/LoginPage";
 import SetupAccountPage from "@/pages/public/SetupAccountPage";
 import NotFound from "@/pages/public/NotFound";
@@ -40,6 +41,14 @@ const App = () => (
                 element={
                   <RoleGuard allowed={["superadmin"]}>
                     <SettingsPage />
+                  </RoleGuard>
+                }
+                />
+              <Route
+                path="/api-settings"
+                element={
+                  <RoleGuard allowed={["superadmin"]}>
+                    <ApiSettingsPage />
                   </RoleGuard>
                 }
               />
