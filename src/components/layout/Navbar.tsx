@@ -9,13 +9,12 @@ export default function Navbar() {
   const { user, loading, logout } = useAuth();
 
   const links = [
-    { to: "/", label: "Home", icon: Sun },
     { to: "/map", label: "Map", icon: Map },
   ];
 
   const handleLogout = async () => {
     await logout();
-    navigate("/");
+    navigate("/login");
   };
 
   return (
