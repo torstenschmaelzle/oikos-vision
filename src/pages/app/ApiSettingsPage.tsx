@@ -95,7 +95,7 @@ export default function ApiSettingsPage() {
 
   // Newest first, limited to DEFAULT_VISIBLE
   const lines = useMemo(
-    () => (data?.lines ?? []).slice().reverse().slice(0, DEFAULT_VISIBLE),
+    () => (data?.lines ?? []).slice().sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, DEFAULT_VISIBLE),
     [data],
   );
 
