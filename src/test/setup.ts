@@ -1,5 +1,6 @@
 import "@testing-library/jest-dom";
 
+// Mock matchMedia for components using responsive hooks
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: (query: string) => ({
@@ -10,6 +11,12 @@ Object.defineProperty(window, "matchMedia", {
     removeListener: () => {},
     addEventListener: () => {},
     removeEventListener: () => {},
-    dispatchEvent: () => {},
+    dispatchEvent: () => false,
   }),
 });
+
+// Suppress console noise in tests (opt-in via env)
+if (process.env.SUPPRESS_CONSOLE) {
+  vi.spyOn(console, "info").mockImplementation(() => {});
+  vi.spyOn(console, "warn").mockImplementation(() => {});
+}
