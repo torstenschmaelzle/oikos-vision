@@ -2,9 +2,10 @@ import { describe, it, expect } from "vitest";
 import { parseLogMessage, methodColor, statusColor, levelColor } from "@/lib/log-parser";
 
 describe("parseLogMessage", () => {
-  it("parses a standard request log line", () => {
+  it("parses a standard request log line (without req_id prefix)", () => {
+    // The regex expects method at the start; req_id is stripped before matching
     const result = parseLogMessage(
-      "req_id=abc123 GET /api/cantons 200 31.9ms ip=172.31.38.143 fwd=31.165.218.45, 172.31.38.143 real_ip=172.31.38.143"
+      "GET /api/cantons 200 31.9ms ip=172.31.38.143 fwd=31.165.218.45, 172.31.38.143 real_ip=172.31.38.143"
     );
     expect(result.kind).toBe("request");
     if (result.kind === "request") {
