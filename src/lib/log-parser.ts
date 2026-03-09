@@ -90,7 +90,8 @@ export function statusColor(status: number): string {
 }
 
 // ── Log level color ────────────────────────────────────────────────────
-export function levelColor(level: string): string {
+export function levelColor(level: string | null | undefined): string {
+  if (!level) return "bg-muted text-muted-foreground border-border";
   switch (level.toUpperCase()) {
     case "ERROR":
     case "CRITICAL":
