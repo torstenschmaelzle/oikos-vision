@@ -4,7 +4,6 @@ import { RefreshCw, AlertCircle, Terminal } from "lucide-react";
 import { getAccessToken } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import LogEntry from "@/components/settings/LogEntry";
 
 type LogChannel = "app" | "auth" | "error";
@@ -26,8 +25,6 @@ const CHANNEL_LABELS: Record<LogChannel, string> = {
   auth: "Authentication Logs",
   error: "Error Logs",
 };
-
-const DEFAULT_VISIBLE = 10;
 
 async function fetchLogs(channel: LogChannel): Promise<LogResponse> {
   const token = getAccessToken();
@@ -54,8 +51,7 @@ export default function LogViewerPanel({ channel }: { channel: LogChannel }) {
     () =>
       (data?.lines ?? [])
         .slice()
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-        .slice(0, DEFAULT_VISIBLE),
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
     [data],
   );
 
@@ -68,7 +64,7 @@ export default function LogViewerPanel({ channel }: { channel: LogChannel }) {
         <div>
           <h2 className="font-display text-lg font-bold text-foreground">{label}</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Showing {lines.length} of {data?.lines?.length ?? 0} entries · newest first
+            {lines.length} entries · newest first
           </p>
         </div>
         <Button
@@ -83,8 +79,8 @@ export default function LogViewerPanel({ channel }: { channel: LogChannel }) {
         </Button>
       </div>
 
-      {/* Body */}
-      <div className="flex-1 min-h-0">
+      {/* Body — native scrollable, fully selectable */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
         {isLoading ? (
           <div className="p-5 space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -108,20 +104,18 @@ export default function LogViewerPanel({ channel }: { channel: LogChannel }) {
             <p className="text-sm font-medium">No entries in {label}</p>
           </div>
         ) : (
-          <ScrollArea className="h-full">
-            <div className="divide-y divide-border">
-              {lines.map((line, i) => (
-                <LogEntry key={i} line={line} />
-              ))}
-            </div>
-          </ScrollArea>
+          <div className="divide-y divide-border select-text">
+            {lines.map((line, i) => (
+              <LogEntry key={i} line={line} />
+            ))}
+          </div>
         )}
       </div>
 
       {/* Footer */}
       {!isLoading && !isError && lines.length > 0 && (
         <div className="px-5 py-2.5 border-t bg-muted/20 flex items-center justify-between">
-          <span className="text-[11px] text-muted-foreground font-mono">{data?.file}</span>
+          <span className="text-[11px] text-muted-foreground font-mono select-text">{data?.file}</span>
           <span className="text-[11px] text-muted-foreground tabular-nums">
             {lines.length} entr{lines.length !== 1 ? "ies" : "y"}
           </span>

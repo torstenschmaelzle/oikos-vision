@@ -3,6 +3,7 @@ import {
   ShieldCheck,
   AlertTriangle,
   FlaskConical,
+  Cpu,
 } from "lucide-react";
 
 export type AdminSection = "app" | "auth" | "error" | "test-api";
@@ -29,10 +30,19 @@ interface Props {
 export default function AdminSidebar({ active, onChange }: Props) {
   return (
     <nav className="w-56 shrink-0 border-r bg-card/60 flex flex-col">
-      <div className="px-4 py-5 border-b">
-        <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Admin Console
-        </span>
+      {/* Sidebar header */}
+      <div className="px-4 py-4 border-b flex items-center gap-2.5">
+        <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
+          <Cpu className="w-3.5 h-3.5 text-primary-foreground" />
+        </div>
+        <div>
+          <span className="text-xs font-bold uppercase tracking-widest text-foreground">
+            API Settings
+          </span>
+          <p className="text-[10px] text-muted-foreground leading-tight">
+            Logs &amp; Diagnostics
+          </p>
+        </div>
       </div>
 
       <div className="flex-1 py-2 space-y-0.5 px-2">
