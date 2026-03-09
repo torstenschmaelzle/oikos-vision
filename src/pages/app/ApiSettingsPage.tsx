@@ -17,7 +17,7 @@ export default function ApiSettingsPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2 }}
-      className="flex-1 flex flex-col bg-background"
+      className="flex-1 flex flex-col bg-background min-h-0 overflow-hidden"
     >
       {/* Two-column layout */}
       <div className="flex flex-1 min-h-0">
