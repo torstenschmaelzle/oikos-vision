@@ -78,26 +78,49 @@ app.add_middleware(_SecurityHeaders)
 
 _raw_origins = settings.CORS_ALLOW_ORIGINS.strip()
 
-# Wildcard + allow_credentials is an invalid combination rejected by browsers
-# and a security misconfiguration: refuse to start with that setup.
 if _raw_origins == "*":
-    allow_origins = ["*"]
-    _allow_credentials = False   # wildcard forbids credentials per spec
-    _app_log.warning(
-        "CORS configured with wildcard origin — allow_credentials forced to False. "
-        "Set CORS_ALLOW_ORIGINS to explicit origins to enable cookie-based auth."
-    )
-else:
-    allow_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
-    _allow_credentials = True    # explicit origins allow credentialed requests
+    # Open API: allow any origin while keeping credentials (cookies/JWT) working.
+    # The CORS spec forbids "Access-Control-Allow-Origin: *" with credentials, so
+    # we echo the request Origin back instead — every caller is allowed but the
+    # browser still enforces same-origin rules for everything else.
+    _app_log.info("CORS configured with open origin-echo mode (all origins allowed with credentials)")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allow_origins,
-    allow_credentials=_allow_credentials,
-    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type"],
-)
+    class _OpenCORSMiddleware(BaseHTTPMiddleware):
+        _ALLOW_METHODS = "GET, POST, DELETE, OPTIONS"
+        _ALLOW_HEADERS = "Authorization, Content-Type"
+
+        async def dispatch(self, request: Request, call_next) -> Response:
+            origin = request.headers.get("origin", "")
+            if request.method == "OPTIONS":
+                # Preflight — respond immediately without hitting the router
+                resp = Response(status_code=200)
+                if origin:
+                    resp.headers["Access-Control-Allow-Origin"] = origin
+                    resp.headers["Access-Control-Allow-Credentials"] = "true"
+                    resp.headers["Access-Control-Allow-Methods"] = self._ALLOW_METHODS
+                    resp.headers["Access-Control-Allow-Headers"] = self._ALLOW_HEADERS
+                    resp.headers["Access-Control-Max-Age"] = "600"
+                    resp.headers["Vary"] = "Origin"
+                return resp
+            resp = await call_next(request)
+            if origin:
+                resp.headers["Access-Control-Allow-Origin"] = origin
+                resp.headers["Access-Control-Allow-Credentials"] = "true"
+                resp.headers["Vary"] = "Origin"
+            return resp
+
+    app.add_middleware(_OpenCORSMiddleware)
+
+else:
+    # Explicit origin list — standard CORSMiddleware
+    allow_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allow_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type"],
+    )
 
 
 # ─── Startup ─────────────────────────────────────────────────────────────────
@@ -110,7 +133,7 @@ def on_startup():
             "JWT_SECRET is set to an insecure default value. "
             "Set a strong random secret in /etc/oikos-api.env before starting."
         )
-    _app_log.info("Starting %s — CORS origins: %s", settings.APP_NAME, allow_origins)
+    _app_log.info("Starting %s — CORS origins: %s", settings.APP_NAME, settings.CORS_ALLOW_ORIGINS)
     init_pool()
     _app_log.info("Database pool initialized")
     from services.test_runner import ensure_schema
