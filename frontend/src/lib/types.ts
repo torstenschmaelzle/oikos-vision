@@ -62,6 +62,19 @@ export interface Building {
   lon?: number | null;
   roof_area_sum_m2?: number | null;
   roof_area_union_m2?: number | null;
+  // GWR fields
+  gkat?: number | null;
+  gkat_label?: string | null;
+  gklas?: number | null;
+  gklas_label?: string | null;
+  gbauj?: number | null;
+  ggesh?: number | null;
+  genh1?: number | null;
+  genh1_label?: string | null;
+  gwaerzh1?: number | null;
+  gwaerzh1_label?: string | null;
+  sb_objektart_code?: number | null;
+  sb_objektart_label?: string | null;
 }
 
 export interface TopRoofsResponse {
@@ -74,6 +87,7 @@ export interface TopRoofsResponse {
   };
   limit: number;
   source: string;
+  filters: Record<string, unknown>;
   buildings: Building[];
 }
 
@@ -106,37 +120,43 @@ export interface GemeindeGeoProperties {
   canton_code?: string;
 }
 
-// Filter state
+// Filter options from /gemeinden/{bfs}/filter-options
+export interface FilterOptionItem {
+  code: number;
+  label: string | null;
+  buildings: number;
+}
+
+export interface FilterOptions {
+  bfs_nummer: number;
+  gemeinde_name: string;
+  sb_objektart: FilterOptionItem[];
+  gkat: FilterOptionItem[];
+  gklas: FilterOptionItem[];
+  genh1: FilterOptionItem[];
+  baujahr_range: { min: number | null; max: number | null };
+  ggesh_range: { min: number | null; max: number | null };
+}
+
+// GWR API-level filter state (sent as query params to /roofs/top)
 export interface FilterState {
-  minAreaEnabled: boolean;
-  minAreaM2: number;
-  maxAreaEnabled: boolean;
-  maxAreaM2: number;
-  buildingType: string;
-  minWinterEnabled: boolean;
-  minWinterKwh: number;
-  maxWinterEnabled: boolean;
-  maxWinterKwh: number;
-  minSummerEnabled: boolean;
-  minSummerKwh: number;
-  maxSummerEnabled: boolean;
-  maxSummerKwh: number;
-  onlyWithRoofsEnabled: boolean;
+  gkat: number[];
+  gklas: number[];
+  genh1: number[];
+  sb_objektart: number[];
+  baujahr_min: number | null;
+  baujahr_max: number | null;
+  ggesh_min: number | null;
+  ggesh_max: number | null;
 }
 
 export const defaultFilters: FilterState = {
-  minAreaEnabled: false,
-  minAreaM2: 0,
-  maxAreaEnabled: false,
-  maxAreaM2: 10000,
-  buildingType: "",
-  minWinterEnabled: false,
-  minWinterKwh: 0,
-  maxWinterEnabled: false,
-  maxWinterKwh: 100000,
-  minSummerEnabled: false,
-  minSummerKwh: 0,
-  maxSummerEnabled: false,
-  maxSummerKwh: 100000,
-  onlyWithRoofsEnabled: false,
+  gkat: [],
+  gklas: [],
+  genh1: [],
+  sb_objektart: [],
+  baujahr_min: null,
+  baujahr_max: null,
+  ggesh_min: null,
+  ggesh_max: null,
 };

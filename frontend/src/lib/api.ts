@@ -8,6 +8,8 @@ import {
   GemeindeGeoProperties,
   TopRoofsResponse,
   BuildingRoofsResponse,
+  FilterOptions,
+  FilterState,
   Geometry,
 } from "./types";
 
@@ -193,7 +195,20 @@ export const api = {
   gemeindenGeo: (cantonId: number) =>
     apiFetch<FeatureCollection<Geometry, GemeindeGeoProperties>>(`/api/gemeinden/map?canton_id=${cantonId}`),
   gemeindeGeo: (bfs: number) => apiFetch<GemeindeGeoDetail>(`/api/gemeinden/map/${bfs}`),
-  topRoofs: (bfs: number, limit: number) =>
-    apiFetch<TopRoofsResponse>(`/api/roofs/top?bfs_nummer=${bfs}&limit=${limit}`),
+  topRoofs: (bfs: number, limit: number, filters?: FilterState) => {
+    const p = new URLSearchParams({ bfs_nummer: String(bfs), limit: String(limit) });
+    if (filters) {
+      filters.gkat.forEach((v) => p.append("gkat", String(v)));
+      filters.gklas.forEach((v) => p.append("gklas", String(v)));
+      filters.genh1.forEach((v) => p.append("genh1", String(v)));
+      filters.sb_objektart.forEach((v) => p.append("sb_objektart", String(v)));
+      if (filters.baujahr_min != null) p.set("baujahr_min", String(filters.baujahr_min));
+      if (filters.baujahr_max != null) p.set("baujahr_max", String(filters.baujahr_max));
+      if (filters.ggesh_min != null) p.set("ggesh_min", String(filters.ggesh_min));
+      if (filters.ggesh_max != null) p.set("ggesh_max", String(filters.ggesh_max));
+    }
+    return apiFetch<TopRoofsResponse>(`/api/roofs/top?${p}`);
+  },
   buildingRoofs: (egid: number) => apiFetch<BuildingRoofsResponse>(`/api/roofs/building/${egid}?include_union=true`),
+  filterOptions: (bfs: number) => apiFetch<FilterOptions>(`/api/gemeinden/${bfs}/filter-options`),
 };

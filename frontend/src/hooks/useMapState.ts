@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { api } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -14,6 +14,7 @@ import {
   BuildingRoofsResponse,
   Building,
   FilterState,
+  FilterOptions,
   defaultFilters,
 } from "@/lib/types";
 
@@ -39,8 +40,10 @@ export interface MapState {
   // data
   overview: TopRoofsResponse | null;
   buildingRoofs: BuildingRoofsResponse | null;
+  buildings: Building[];
   // filters
   filters: FilterState;
+  filterOptions: FilterOptions | null;
   limit: number;
   // loading
   initialLoading: boolean;
@@ -49,27 +52,12 @@ export interface MapState {
   buildingLoading: boolean;
   // error
   error: string | null;
-  // filtered buildings
-  filteredBuildings: Building[];
   // actions
   selectCanton: (id: number | null) => void;
   selectGemeinde: (bfs: number | null) => void;
   selectBuilding: (egid: number | null) => void;
   setFilters: (f: FilterState) => void;
   setLimit: (l: number) => void;
-}
-
-function applyFilters(buildings: Building[], f: FilterState): Building[] {
-  return buildings.filter((b) => {
-    if (f.minAreaEnabled && (b.roof_area_sum_m2 ?? 0) < f.minAreaM2) return false;
-    if (f.maxAreaEnabled && (b.roof_area_sum_m2 ?? Infinity) > f.maxAreaM2) return false;
-    if (f.minWinterEnabled && (b.winter_total ?? 0) < f.minWinterKwh) return false;
-    if (f.maxWinterEnabled && (b.winter_total ?? Infinity) > f.maxWinterKwh) return false;
-    if (f.minSummerEnabled && (b.sommer_total ?? 0) < f.minSummerKwh) return false;
-    if (f.maxSummerEnabled && (b.sommer_total ?? Infinity) > f.maxSummerKwh) return false;
-    if (f.onlyWithRoofsEnabled && (!b.roof_rows || b.roof_rows <= 0)) return false;
-    return true;
-  });
 }
 
 export function useMapState(): MapState {
@@ -85,6 +73,7 @@ export function useMapState(): MapState {
   const [overview, setOverview] = useState<TopRoofsResponse | null>(null);
   const [buildingRoofs, setBuildingRoofs] = useState<BuildingRoofsResponse | null>(null);
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
+  const [filterOptions, setFilterOptions] = useState<FilterOptions | null>(null);
   const [limit, setLimit] = useState(80);
   const [initialLoading, setInitialLoading] = useState(true);
   const [cantonLoading, setCantonLoading] = useState(false);
@@ -99,72 +88,83 @@ export function useMapState(): MapState {
       .then(([c, geo]) => {
         setCantons(c);
         setCantonsGeo(geo);
-        setGemeinden([]);
-        setGemeindenGeo(null);
-        setSelectedGemeindeGeo(null);
-        setOverview(null);
-        setBuildingRoofs(null);
-        setSelectedCantonGeo(null);
         setError(null);
       })
       .catch((e) => setError(showError(e)))
       .finally(() => setInitialLoading(false));
   }, []);
 
-  const selectCanton = useCallback(
-    (id: number | null) => {
-      setSelectedCantonId(id);
-      setSelectedBfs(null);
-      setSelectedEgid(null);
+  // Fetch buildings whenever bfs, limit, or GWR filters change.
+  // Using JSON.stringify as a stable dep key so object identity doesn't cause spurious re-fetches.
+  const gwrKey = JSON.stringify(filters);
+  useEffect(() => {
+    if (!selectedBfs) {
       setOverview(null);
-      setBuildingRoofs(null);
+      return;
+    }
+    setGemeindeLoading(true);
+    api
+      .topRoofs(selectedBfs, limit, filters)
+      .then((r) => {
+        setOverview(r);
+        setError(null);
+      })
+      .catch((e) => setError(showError(e)))
+      .finally(() => setGemeindeLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedBfs, limit, gwrKey]);
+
+  const selectCanton = useCallback((id: number | null) => {
+    setSelectedCantonId(id);
+    setSelectedBfs(null);
+    setSelectedEgid(null);
+    setOverview(null);
+    setBuildingRoofs(null);
+    setSelectedGemeindeGeo(null);
+    setFilterOptions(null);
+    setFilters(defaultFilters);
+
+    if (!id) {
+      setGemeinden([]);
+      setGemeindenGeo(null);
+      setSelectedCantonGeo(null);
+      return;
+    }
+
+    setCantonLoading(true);
+    Promise.all([api.gemeinden(id), api.gemeindenGeo(id), api.cantonGeo(id)])
+      .then(([g, gGeo, cGeo]) => {
+        setGemeinden(g);
+        setGemeindenGeo(gGeo);
+        setSelectedCantonGeo(cGeo);
+        setError(null);
+      })
+      .catch((e) => setError(showError(e)))
+      .finally(() => setCantonLoading(false));
+  }, []);
+
+  const selectGemeinde = useCallback((bfs: number | null) => {
+    setSelectedBfs(bfs);
+    setSelectedEgid(null);
+    setBuildingRoofs(null);
+    setOverview(null);
+    setFilterOptions(null);
+    setFilters(defaultFilters);
+
+    if (!bfs) {
       setSelectedGemeindeGeo(null);
+      return;
+    }
 
-      if (!id) {
-        setGemeinden([]);
-        setGemeindenGeo(null);
-        setSelectedCantonGeo(null);
-        return;
-      }
-
-      setCantonLoading(true);
-      Promise.all([api.gemeinden(id), api.gemeindenGeo(id), api.cantonGeo(id)])
-        .then(([g, gGeo, cGeo]) => {
-          setGemeinden(g);
-          setGemeindenGeo(gGeo);
-          setSelectedCantonGeo(cGeo);
-          setError(null);
-        })
-        .catch((e) => setError(showError(e)))
-        .finally(() => setCantonLoading(false));
-    },
-    []
-  );
-
-  const selectGemeinde = useCallback(
-    (bfs: number | null) => {
-      setSelectedBfs(bfs);
-      setSelectedEgid(null);
-      setBuildingRoofs(null);
-      setOverview(null);
-
-      if (!bfs) {
-        setSelectedGemeindeGeo(null);
-        return;
-      }
-
-      setGemeindeLoading(true);
-      Promise.all([api.gemeindeGeo(bfs), api.topRoofs(bfs, limit)])
-        .then(([gGeo, roofs]) => {
-          setSelectedGemeindeGeo(gGeo);
-          setOverview(roofs);
-          setError(null);
-        })
-        .catch((e) => setError(showError(e)))
-        .finally(() => setGemeindeLoading(false));
-    },
-    [limit]
-  );
+    // Fetch geo + filter options (building fetch is driven by the useEffect above)
+    Promise.all([api.gemeindeGeo(bfs), api.filterOptions(bfs)])
+      .then(([gGeo, opts]) => {
+        setSelectedGemeindeGeo(gGeo);
+        setFilterOptions(opts);
+        setError(null);
+      })
+      .catch((e) => setError(showError(e)));
+  }, []);
 
   const selectBuilding = useCallback((egid: number | null) => {
     setSelectedEgid(egid);
@@ -181,7 +181,7 @@ export function useMapState(): MapState {
       .finally(() => setBuildingLoading(false));
   }, []);
 
-  const filteredBuildings = overview ? applyFilters(overview.buildings, filters) : [];
+  const buildings = overview?.buildings ?? [];
 
   return {
     cantons,
@@ -195,14 +195,15 @@ export function useMapState(): MapState {
     selectedEgid,
     overview,
     buildingRoofs,
+    buildings,
     filters,
+    filterOptions,
     limit,
     initialLoading,
     cantonLoading,
     gemeindeLoading,
     buildingLoading,
     error,
-    filteredBuildings,
     selectCanton,
     selectGemeinde,
     selectBuilding,

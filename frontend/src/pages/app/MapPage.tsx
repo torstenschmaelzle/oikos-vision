@@ -11,7 +11,7 @@ export default function MapPage() {
   const anyLoading = state.initialLoading || state.cantonLoading || state.gemeindeLoading;
 
   const selectedBuilding = state.selectedEgid
-    ? state.filteredBuildings.find((b) => b.bdg_egid === state.selectedEgid)
+    ? state.buildings.find((b) => b.bdg_egid === state.selectedEgid)
     : null;
 
   return (
@@ -25,7 +25,7 @@ export default function MapPage() {
             selectedCantonGeo={state.selectedCantonGeo}
             gemeindenGeo={state.gemeindenGeo}
             selectedGemeindeGeo={state.selectedGemeindeGeo}
-            buildings={state.filteredBuildings}
+            buildings={state.buildings}
             buildingRoofs={state.buildingRoofs}
             selectedEgid={state.selectedEgid}
             onSelectBuilding={state.selectBuilding}
@@ -77,7 +77,12 @@ export default function MapPage() {
 
                 <div className="h-px bg-border" />
 
-                <FiltersPanel filters={state.filters} onChange={state.setFilters} />
+                <FiltersPanel
+                  filters={state.filters}
+                  filterOptions={state.filterOptions}
+                  hasGemeinde={state.selectedBfs != null}
+                  onChange={state.setFilters}
+                />
               </>
             )}
           </div>
@@ -119,16 +124,16 @@ export default function MapPage() {
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-display font-semibold text-lg text-foreground">
               Buildings
-              {state.filteredBuildings.length > 0 && (
+              {state.buildings.length > 0 && (
                 <span className="ml-2 text-sm font-normal text-muted-foreground">
-                  ({state.filteredBuildings.length})
+                  ({state.buildings.length})
                 </span>
               )}
             </h3>
           </div>
 
           <ResultsList
-            buildings={state.filteredBuildings}
+            buildings={state.buildings}
             selectedEgid={state.selectedEgid}
             onSelect={state.selectBuilding}
             loading={state.gemeindeLoading}
