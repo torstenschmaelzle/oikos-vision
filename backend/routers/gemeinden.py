@@ -287,14 +287,16 @@ def gemeinde_filter_options(bfs_nummer: int):
 
     All queries run in a single connection transaction.
     """
-    # All queries use com_fosnr index for fast Gemeinde scoping.
-    # q_sb joins FROM addresses (small, indexed by com_fosnr) to roofs —
-    # avoids iterating the full 10M-row roofs table.
+    # Use = ANY(subquery) instead of JOIN to force roofs_gwr_egid_idx usage.
+    # The JOIN caused the planner to seq-scan all 10M roof rows (59s);
+    # this runs in ~115ms.
     q_sb = """
-    SELECT r.sb_objektart AS code, COUNT(DISTINCT a.bdg_egid) AS cnt
-    FROM oikos.addresses a
-    JOIN oikos.roofs r ON r.gwr_egid::bigint = a.bdg_egid
-    WHERE a.com_fosnr = %s AND r.sb_objektart IS NOT NULL
+    SELECT r.sb_objektart AS code, COUNT(DISTINCT r.gwr_egid) AS cnt
+    FROM oikos.roofs r
+    WHERE r.gwr_egid = ANY(
+        SELECT bdg_egid::integer FROM oikos.addresses
+        WHERE com_fosnr = %s AND bdg_egid IS NOT NULL
+    ) AND r.sb_objektart IS NOT NULL
     GROUP BY r.sb_objektart ORDER BY cnt DESC;
     """
 
