@@ -57,14 +57,17 @@ export default function RoofViewer3D({ parts, floors, selectedPartIndex, onSelec
         mat.color.setHex(PART_COLORS[i % PART_COLORS.length]);
         mat.opacity = 0.88;
         mat.emissive.setHex(0x000000);
+        mat.needsUpdate = true;
       } else if (i === selectedPartIndex) {
         mat.color.setHex(PART_COLOR_HIGHLIGHT);
         mat.opacity = 1.0;
         mat.emissive.setHex(0x0a5e3a);
+        mat.needsUpdate = true;
       } else {
         mat.color.setHex(PART_COLORS[i % PART_COLORS.length]);
         mat.opacity = 0.28;
         mat.emissive.setHex(0x000000);
+        mat.needsUpdate = true;
       }
     });
   }, [selectedPartIndex]);
@@ -172,7 +175,9 @@ export default function RoofViewer3D({ parts, floors, selectedPartIndex, onSelec
           mat.opacity = 1.0;
           mat.emissive.setHex(0x0a5e3a);
         } else {
+          mat.color.setHex(PART_COLORS[i % PART_COLORS.length]);
           mat.opacity = 0.28;
+          mat.emissive.setHex(0x000000);
         }
       });
     }
