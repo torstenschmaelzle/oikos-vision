@@ -16,9 +16,9 @@ export default function MapPage() {
     : null;
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-3.5rem)] bg-background">
+    <div className="flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden bg-background">
       {/* Top section: Map + Sidebar */}
-      <div className="flex flex-1 min-h-[60vh] max-h-[75vh]">
+      <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* Sidebar */}
         <motion.aside
           initial={{ x: -40, opacity: 0 }}
@@ -104,9 +104,9 @@ export default function MapPage() {
         </AnimatePresence>
       </div>
 
-      {/* Results section below map */}
-      <section className="relative border-t border-border bg-background">
-        <div className="px-6 pt-6 pb-2 flex items-center justify-between">
+      {/* Results section below map — fixed height, inner grid scrolls */}
+      <section className="flex flex-col border-t border-border bg-background shrink-0 h-[280px]">
+        <div className="px-6 pt-4 pb-2 flex items-center justify-between shrink-0">
           <h3 className="font-display font-semibold text-lg text-foreground">
             Buildings
             {state.buildings.length > 0 && (
@@ -116,7 +116,7 @@ export default function MapPage() {
             )}
           </h3>
         </div>
-        <div className="overflow-y-auto max-h-[380px] px-6 pb-6">
+        <div className="flex-1 overflow-y-auto px-6 pb-4">
           <ResultsList
             buildings={state.buildings}
             selectedEgid={state.selectedEgid}
