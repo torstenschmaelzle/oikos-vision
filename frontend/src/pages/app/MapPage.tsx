@@ -3,8 +3,9 @@ import MapView from "@/components/map/MapView";
 import SelectionToolbar from "@/components/map/SelectionToolbar";
 import FiltersPanel from "@/components/map/FiltersPanel";
 import ResultsList from "@/components/map/ResultsList";
+import RoofDetailPanel from "@/components/map/RoofDetailPanel";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, X, Building2 } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 
 export default function MapPage() {
   const state = useMapState();
@@ -74,7 +75,7 @@ export default function MapPage() {
         </motion.aside>
 
         {/* Map */}
-        <div className="flex-1 p-3 relative z-0">
+        <div className="flex-1 min-w-0 p-3 relative z-0">
           <MapView
             cantonsGeo={state.cantonsGeo}
             selectedCantonGeo={state.selectedCantonGeo}
@@ -89,36 +90,19 @@ export default function MapPage() {
             loading={anyLoading || state.buildingLoading}
           />
         </div>
-      </div>
 
-      {/* Selected building mini-header */}
-      <AnimatePresence>
-        {selectedBuilding && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="sticky top-14 z-30 bg-card border-y border-border px-6 py-2.5 flex items-center justify-between"
-          >
-            <div className="flex items-center gap-3 text-sm">
-              <Building2 className="w-4 h-4 text-primary" />
-              <span className="font-semibold text-foreground">EGID {selectedBuilding.bdg_egid}</span>
-              {selectedBuilding.stn_label && (
-                <span className="text-muted-foreground">
-                  — {selectedBuilding.stn_label} {selectedBuilding.adr_number ?? ""}
-                </span>
-              )}
-            </div>
-            <button
-              onClick={() => state.selectBuilding(null)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-md hover:bg-muted"
-            >
-              <X className="w-3.5 h-3.5" />
-              Clear selection
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        {/* Roof detail panel */}
+        <AnimatePresence>
+          {state.selectedEgid && (
+            <RoofDetailPanel
+              building={selectedBuilding}
+              buildingRoofs={state.buildingRoofs}
+              buildingLoading={state.buildingLoading}
+              onClose={() => state.selectBuilding(null)}
+            />
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* Results section below map */}
       <section className="relative border-t border-border bg-background">
