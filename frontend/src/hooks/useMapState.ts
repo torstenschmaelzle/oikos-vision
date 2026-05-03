@@ -156,14 +156,15 @@ export function useMapState(): MapState {
       return;
     }
 
-    // Fetch geo + filter options (building fetch is driven by the useEffect above)
-    Promise.all([api.gemeindeGeo(bfs), api.filterOptions(bfs)])
-      .then(([gGeo, opts]) => {
-        setSelectedGemeindeGeo(gGeo);
-        setFilterOptions(opts);
-        setError(null);
-      })
+    // Geo is critical — fetch independently so a failing filter-options never blocks the map
+    api.gemeindeGeo(bfs)
+      .then((gGeo) => { setSelectedGemeindeGeo(gGeo); setError(null); })
       .catch((e) => setError(showError(e)));
+
+    // Filter options are optional — fail silently so the panel stays usable without them
+    api.filterOptions(bfs)
+      .then((opts) => setFilterOptions(opts))
+      .catch(() => { /* endpoint may not be deployed yet — filters will be hidden */ });
   }, []);
 
   const selectBuilding = useCallback((egid: number | null) => {

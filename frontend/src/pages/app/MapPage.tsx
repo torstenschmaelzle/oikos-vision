@@ -18,27 +18,12 @@ export default function MapPage() {
     <div className="flex flex-col min-h-[calc(100vh-3.5rem)] bg-background">
       {/* Top section: Map + Sidebar */}
       <div className="flex flex-1 min-h-[60vh] max-h-[75vh]">
-      {/* Map */}
-        <div className="flex-1 p-3 relative z-0">
-          <MapView
-            cantonsGeo={state.cantonsGeo}
-            selectedCantonGeo={state.selectedCantonGeo}
-            gemeindenGeo={state.gemeindenGeo}
-            selectedGemeindeGeo={state.selectedGemeindeGeo}
-            buildings={state.buildings}
-            buildingRoofs={state.buildingRoofs}
-            selectedEgid={state.selectedEgid}
-            onSelectBuilding={state.selectBuilding}
-            loading={anyLoading || state.buildingLoading}
-          />
-        </div>
-
         {/* Sidebar */}
         <motion.aside
-          initial={{ x: 40, opacity: 0 }}
+          initial={{ x: -40, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4 }}
-          className="w-[320px] border-l border-border bg-card overflow-y-auto shrink-0"
+          className="w-[320px] border-r border-border bg-card overflow-y-auto shrink-0"
         >
           <div className="p-4 space-y-5">
             <AnimatePresence>
@@ -87,6 +72,23 @@ export default function MapPage() {
             )}
           </div>
         </motion.aside>
+
+        {/* Map */}
+        <div className="flex-1 p-3 relative z-0">
+          <MapView
+            cantonsGeo={state.cantonsGeo}
+            selectedCantonGeo={state.selectedCantonGeo}
+            gemeindenGeo={state.gemeindenGeo}
+            selectedGemeindeGeo={state.selectedGemeindeGeo}
+            buildings={state.buildings}
+            buildingRoofs={state.buildingRoofs}
+            selectedEgid={state.selectedEgid}
+            onSelectBuilding={state.selectBuilding}
+            onSelectCanton={state.selectCanton}
+            onSelectGemeinde={state.selectGemeinde}
+            loading={anyLoading || state.buildingLoading}
+          />
+        </div>
       </div>
 
       {/* Selected building mini-header */}
@@ -119,19 +121,18 @@ export default function MapPage() {
       </AnimatePresence>
 
       {/* Results section below map */}
-      <section className="relative px-6 py-8 border-t border-border overflow-hidden bg-background">
-        <div className="relative">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-display font-semibold text-lg text-foreground">
-              Buildings
-              {state.buildings.length > 0 && (
-                <span className="ml-2 text-sm font-normal text-muted-foreground">
-                  ({state.buildings.length})
-                </span>
-              )}
-            </h3>
-          </div>
-
+      <section className="relative border-t border-border bg-background">
+        <div className="px-6 pt-6 pb-2 flex items-center justify-between">
+          <h3 className="font-display font-semibold text-lg text-foreground">
+            Buildings
+            {state.buildings.length > 0 && (
+              <span className="ml-2 text-sm font-normal text-muted-foreground">
+                ({state.buildings.length})
+              </span>
+            )}
+          </h3>
+        </div>
+        <div className="overflow-y-auto max-h-[380px] px-6 pb-6">
           <ResultsList
             buildings={state.buildings}
             selectedEgid={state.selectedEgid}
