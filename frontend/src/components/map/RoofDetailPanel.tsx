@@ -8,6 +8,8 @@ interface Props {
   buildingRoofs: BuildingRoofsResponse | null;
   buildingLoading: boolean;
   onClose: () => void;
+  selectedPartIndex: number | null;
+  onSelectPart: (index: number | null) => void;
 }
 
 const PART_COLORS = ["#10b981", "#059669", "#047857", "#065f46", "#064e3b"];
@@ -28,7 +30,14 @@ function SpecRow({ label, value }: { label: string; value: string | number | nul
   );
 }
 
-export default function RoofDetailPanel({ building, buildingRoofs, buildingLoading, onClose }: Props) {
+export default function RoofDetailPanel({
+  building,
+  buildingRoofs,
+  buildingLoading,
+  onClose,
+  selectedPartIndex,
+  onSelectPart,
+}: Props) {
   const parts = buildingRoofs?.parts ?? [];
   const hasGeometry = parts.some((p) => p.geojson != null);
   const floors = building?.ggesh ?? 3;
@@ -56,7 +65,7 @@ export default function RoofDetailPanel({ building, buildingRoofs, buildingLoadi
       {/* Accent stripe */}
       <div className="h-[3px] bg-gradient-to-r from-primary via-emerald-400 to-amber-400 shrink-0" />
 
-      {/* Hero — 3D viewer; canvas fills the area so bg-muted shows only if no canvas */}
+      {/* Hero */}
       <div className="relative h-[220px] bg-muted shrink-0 overflow-hidden">
         <span className="absolute top-3 left-4 text-[9px] font-bold tracking-[0.15em] text-primary uppercase z-10">
           ☀ Solar Potential · EGID {building?.bdg_egid ?? "…"}
@@ -74,7 +83,12 @@ export default function RoofDetailPanel({ building, buildingRoofs, buildingLoadi
           </div>
         ) : hasGeometry ? (
           <div className="absolute inset-0 pt-8">
-            <RoofViewer3D parts={parts} floors={floors} />
+            <RoofViewer3D
+              parts={parts}
+              floors={floors}
+              selectedPartIndex={selectedPartIndex}
+              onSelectPart={onSelectPart}
+            />
           </div>
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -84,7 +98,7 @@ export default function RoofDetailPanel({ building, buildingRoofs, buildingLoadi
 
         {hasGeometry && !buildingLoading && (
           <span className="absolute bottom-2 right-3 text-[8px] tracking-wide text-muted-foreground/50 z-10 pointer-events-none">
-            DRAG TO ROTATE · SCROLL TO ZOOM
+            DRAG TO ROTATE · CLICK PART TO SELECT
           </span>
         )}
       </div>
@@ -147,17 +161,18 @@ export default function RoofDetailPanel({ building, buildingRoofs, buildingLoadi
         </div>
       )}
 
-      {/* Spec body */}
-      <div className="flex-1 overflow-y-auto">
+      {/* Spec body — GWR fixed, parts independently scrollable */}
+      <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
         {buildingLoading ? (
-          <div className="p-4 space-y-[3px]">
+          <div className="p-4 space-y-[3px] overflow-y-auto">
             {Array.from({ length: 10 }).map((_, i) => (
               <div key={i} className="h-7 rounded bg-muted animate-pulse" />
             ))}
           </div>
         ) : (
           <>
-            <div className="p-3 border-b border-border">
+            {/* GWR spec — always visible, not independently scrollable */}
+            <div className="p-3 border-b border-border shrink-0">
               <div className="flex items-center gap-1.5 mb-2">
                 <Layers className="w-3 h-3 text-muted-foreground" />
                 <span className="text-[9px] font-bold tracking-[0.18em] text-muted-foreground uppercase">
@@ -183,32 +198,41 @@ export default function RoofDetailPanel({ building, buildingRoofs, buildingLoadi
               </div>
             </div>
 
+            {/* Parts list — independently scrollable */}
             {parts.length > 0 && (
-              <div className="p-3">
-                <div className="text-[9px] font-bold tracking-[0.18em] text-muted-foreground uppercase mb-2">
+              <div className="flex flex-col flex-1 min-h-0 p-3">
+                <div className="text-[9px] font-bold tracking-[0.18em] text-muted-foreground uppercase mb-2 shrink-0">
                   Dachflächen · Einzelübersicht
                 </div>
-                <div className="space-y-[3px]">
-                  {parts.map((part, i) => (
-                    <div
-                      key={part.objectid}
-                      className="flex items-center gap-2.5 px-2 py-[7px] bg-muted rounded"
-                    >
-                      <div
-                        className="w-2.5 h-2.5 rounded-sm shrink-0"
-                        style={{ backgroundColor: PART_COLORS[i % PART_COLORS.length] }}
-                      />
-                      <span className="text-xs text-muted-foreground flex-1">Teil {i + 1}</span>
-                      <div className="text-right">
-                        <div className="text-[10px] text-amber-500 flex items-center gap-1 justify-end">
-                          <Sun className="w-2.5 h-2.5" /> {fmt(part.summer)} kWh
+                <div className="flex-1 overflow-y-auto space-y-[3px] pr-0.5">
+                  {parts.map((part, i) => {
+                    const isSelected = selectedPartIndex === i;
+                    return (
+                      <button
+                        key={part.objectid}
+                        onClick={() => onSelectPart(isSelected ? null : i)}
+                        className={`flex items-center gap-2.5 px-2 py-[7px] rounded w-full text-left transition-colors ${
+                          isSelected
+                            ? "bg-primary/10 ring-1 ring-primary/30"
+                            : "bg-muted hover:bg-accent"
+                        }`}
+                      >
+                        <div
+                          className="w-2.5 h-2.5 rounded-sm shrink-0"
+                          style={{ backgroundColor: PART_COLORS[i % PART_COLORS.length] }}
+                        />
+                        <span className="text-xs text-muted-foreground flex-1">Teil {i + 1}</span>
+                        <div className="text-right">
+                          <div className="text-[10px] text-amber-500 flex items-center gap-1 justify-end">
+                            <Sun className="w-2.5 h-2.5" /> {fmt(part.summer)} kWh
+                          </div>
+                          <div className="text-[10px] text-sky-500 flex items-center gap-1 justify-end">
+                            <Snowflake className="w-2.5 h-2.5" /> {fmt(part.winter)} kWh
+                          </div>
                         </div>
-                        <div className="text-[10px] text-sky-500 flex items-center gap-1 justify-end">
-                          <Snowflake className="w-2.5 h-2.5" /> {fmt(part.winter)} kWh
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
