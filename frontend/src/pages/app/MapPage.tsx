@@ -4,7 +4,7 @@ import SelectionToolbar from "@/components/map/SelectionToolbar";
 import FiltersPanel from "@/components/map/FiltersPanel";
 import RoofDetailPanel from "@/components/map/RoofDetailPanel";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function MapPage() {
   const state = useMapState();
@@ -13,6 +13,21 @@ export default function MapPage() {
   const selectedBuilding = state.selectedEgid
     ? state.buildings.find((b) => b.bdg_egid === state.selectedEgid)
     : null;
+
+  // Arrow navigation — buildings are already sorted by sommer_total desc in useMapState
+  const currentIndex = state.selectedEgid
+    ? state.buildings.findIndex((b) => b.bdg_egid === state.selectedEgid)
+    : -1;
+
+  const goToPrev = () => {
+    if (currentIndex > 0) state.selectBuilding(state.buildings[currentIndex - 1].bdg_egid);
+  };
+  const goToNext = () => {
+    if (currentIndex < state.buildings.length - 1)
+      state.selectBuilding(state.buildings[currentIndex + 1].bdg_egid);
+  };
+
+  const showArrows = state.buildings.length > 1 && state.selectedBfs !== null;
 
   return (
     <div className="h-[calc(100vh-3.5rem)] overflow-hidden bg-background flex">
@@ -71,7 +86,7 @@ export default function MapPage() {
         </div>
       </motion.aside>
 
-      {/* Map */}
+      {/* Map + arrow overlay */}
       <div className="flex-1 min-w-0 p-3 relative z-0">
         <MapView
           cantonsGeo={state.cantonsGeo}
@@ -86,6 +101,37 @@ export default function MapPage() {
           onSelectGemeinde={state.selectGemeinde}
           loading={anyLoading || state.buildingLoading}
         />
+
+        {/* Prev / Next arrows */}
+        <AnimatePresence>
+          {showArrows && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.2 }}
+              className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-2"
+            >
+              <button
+                onClick={goToPrev}
+                disabled={currentIndex <= 0 || state.buildingLoading}
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-card border border-border shadow-md text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="px-3 py-1.5 rounded-full bg-card border border-border shadow-md text-xs font-medium text-foreground tabular-nums">
+                {currentIndex >= 0 ? currentIndex + 1 : "—"} / {state.buildings.length}
+              </span>
+              <button
+                onClick={goToNext}
+                disabled={currentIndex >= state.buildings.length - 1 || state.buildingLoading}
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-card border border-border shadow-md text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Roof detail panel */}
