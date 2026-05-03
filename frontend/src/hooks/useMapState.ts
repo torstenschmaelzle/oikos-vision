@@ -111,10 +111,12 @@ export function useMapState(): MapState {
           (a, b) => (b.sommer_total ?? 0) - (a.sommer_total ?? 0)
         );
         const sortedResponse = { ...r, buildings: sorted };
+        // Capture before setOverview: null means this is a fresh Gemeinde load,
+        // not a filter/limit refetch where the user may have already selected a building.
+        const wasFirstLoad = overview === null;
         setOverview(sortedResponse);
         setError(null);
-        // Auto-select the best building so the detail panel opens immediately
-        if (sorted.length > 0) {
+        if (wasFirstLoad && sorted.length > 0) {
           selectBuilding(sorted[0].bdg_egid);
         }
       })
