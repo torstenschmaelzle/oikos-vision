@@ -115,6 +115,7 @@ export default function MapPage() {
               <button
                 onClick={goToPrev}
                 disabled={currentIndex <= 0 || state.buildingLoading}
+                aria-label="Previous building"
                 className="w-9 h-9 flex items-center justify-center rounded-full bg-card border border-border shadow-md text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -125,6 +126,7 @@ export default function MapPage() {
               <button
                 onClick={goToNext}
                 disabled={currentIndex >= state.buildings.length - 1 || state.buildingLoading}
+                aria-label="Next building"
                 className="w-9 h-9 flex items-center justify-center rounded-full bg-card border border-border shadow-md text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronRight className="w-4 h-4" />
