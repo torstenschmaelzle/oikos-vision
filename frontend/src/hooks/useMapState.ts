@@ -106,8 +106,17 @@ export function useMapState(): MapState {
     api
       .topRoofs(selectedBfs, limit, filters)
       .then((r) => {
-        setOverview(r);
+        // Sort by summer solar yield descending so best roof is always first
+        const sorted = [...(r.buildings ?? [])].sort(
+          (a, b) => (b.sommer_total ?? 0) - (a.sommer_total ?? 0)
+        );
+        const sortedResponse = { ...r, buildings: sorted };
+        setOverview(sortedResponse);
         setError(null);
+        // Auto-select the best building so the detail panel opens immediately
+        if (sorted.length > 0) {
+          selectBuilding(sorted[0].bdg_egid);
+        }
       })
       .catch((e) => setError(showError(e)))
       .finally(() => setGemeindeLoading(false));
