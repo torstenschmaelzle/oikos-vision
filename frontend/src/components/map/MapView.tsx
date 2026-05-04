@@ -32,6 +32,8 @@ interface Props {
   onSelectCanton: (id: number) => void;
   onSelectGemeinde: (bfs: number) => void;
   loading: boolean;
+  selectedPartIndex: number | null;
+  onSelectPart: (index: number | null) => void;
 }
 
 function createTooltipDiv() {
@@ -64,6 +66,12 @@ const roofPartHover: L.PathOptions = {
 const roofUnionStyle: L.PathOptions = {
   color: "hsl(160,32%,36%)", weight: 2, fillOpacity: 0.06, fillColor: "hsl(160,28%,45%)", dashArray: "6 4",
 };
+const roofPartSelectedStyle: L.PathOptions = {
+  color: "#34d399",
+  weight: 2,
+  fillColor: "#34d399",
+  fillOpacity: 0.55,
+};
 
 export default function MapView({
   cantonsGeo,
@@ -77,6 +85,8 @@ export default function MapView({
   onSelectCanton,
   onSelectGemeinde,
   loading,
+  selectedPartIndex,
+  onSelectPart,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -259,12 +269,21 @@ export default function MapView({
     // ── Roof visualization ────────────────────────────────────────────────
     if (buildingRoofs) {
       const roofLayerGroup = L.featureGroup();
-      buildingRoofs.parts.forEach((p) => {
+      buildingRoofs.parts.forEach((p, partIdx) => {
         if (p.geojson) {
-          const partLayer = L.geoJSON({ type: "Feature", geometry: p.geojson, properties: {} } as any, { style: roofPartStyle }).addTo(roofLayerGroup);
+          const isSelected = partIdx === selectedPartIndex;
+          const style = isSelected ? roofPartSelectedStyle : roofPartStyle;
+          const partLayer = L.geoJSON({ type: "Feature", geometry: p.geojson, properties: {} } as any, { style }).addTo(roofLayerGroup);
           partLayer.on({
-            mouseover: (e: any) => (e.target as L.Path).setStyle(roofPartHover),
-            mouseout: (e: any) => (e.target as L.Path).setStyle(roofPartStyle),
+            mouseover: (e: any) => {
+              if (partIdx !== selectedPartIndex) (e.target as L.Path).setStyle(roofPartHover);
+            },
+            mouseout: (e: any) => {
+              (e.target as L.Path).setStyle(partIdx === selectedPartIndex ? roofPartSelectedStyle : roofPartStyle);
+            },
+            click: () => {
+              onSelectPart(partIdx === selectedPartIndex ? null : partIdx);
+            },
           });
         }
       });
@@ -283,7 +302,7 @@ export default function MapView({
         }
       } catch {}
     }
-  }, [cantonsGeo, selectedCantonGeo, gemeindenGeo, selectedGemeindeGeo, buildings, buildingRoofs, selectedEgid, onSelectBuilding]);
+  }, [cantonsGeo, selectedCantonGeo, gemeindenGeo, selectedGemeindeGeo, buildings, buildingRoofs, selectedEgid, onSelectBuilding, selectedPartIndex, onSelectPart]);
 
   return (
     <div className="relative w-full h-full rounded-lg overflow-hidden border border-border shadow-card">

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useMapState } from "@/hooks/useMapState";
 import MapView from "@/components/map/MapView";
 import SelectionToolbar from "@/components/map/SelectionToolbar";
@@ -8,6 +9,13 @@ import { AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function MapPage() {
   const state = useMapState();
+
+  const [selectedPartIndex, setSelectedPartIndex] = useState<number | null>(null);
+
+  // Reset part selection when selected building changes
+  useEffect(() => {
+    setSelectedPartIndex(null);
+  }, [state.selectedEgid]);
   const anyLoading = state.initialLoading || state.cantonLoading || state.gemeindeLoading;
 
   const selectedBuilding = state.selectedEgid
@@ -100,6 +108,8 @@ export default function MapPage() {
           onSelectCanton={state.selectCanton}
           onSelectGemeinde={state.selectGemeinde}
           loading={anyLoading || state.buildingLoading}
+          selectedPartIndex={selectedPartIndex}
+          onSelectPart={setSelectedPartIndex}
         />
 
         {/* Prev / Next arrows */}
@@ -144,6 +154,8 @@ export default function MapPage() {
             buildingRoofs={state.buildingRoofs}
             buildingLoading={state.buildingLoading}
             onClose={() => state.selectBuilding(null)}
+            selectedPartIndex={selectedPartIndex}
+            onSelectPart={setSelectedPartIndex}
           />
         )}
       </AnimatePresence>
