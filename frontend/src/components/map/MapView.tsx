@@ -101,8 +101,10 @@ export default function MapView({
 
   const onSelectCantonRef = useRef(onSelectCanton);
   const onSelectGemeindeRef = useRef(onSelectGemeinde);
+  const onSelectBuildingRef = useRef(onSelectBuilding);
   useEffect(() => { onSelectCantonRef.current = onSelectCanton; }, [onSelectCanton]);
   useEffect(() => { onSelectGemeindeRef.current = onSelectGemeinde; }, [onSelectGemeinde]);
+  useEffect(() => { onSelectBuildingRef.current = onSelectBuilding; }, [onSelectBuilding]);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -143,6 +145,7 @@ export default function MapView({
     const gemeindeJustSelected = selectedGemeindeGeo !== null && selectedGemeindeGeo !== prevGemeindeGeo;
     const gemeindeJustDeselected = prevGemeindeGeo !== null && selectedGemeindeGeo === null && selectedCantonGeo !== null;
     const isSwitchingBuildings = prevEgid !== null && prevEgid !== selectedEgid && selectedEgid !== null;
+    const egidJustChanged = prevEgid !== selectedEgid;
 
     const layers = layersRef.current;
     layers.clearLayers();
@@ -255,7 +258,7 @@ export default function MapView({
           weight: isSelected ? 2.5 : 1.5,
           ...(isSelected ? { className: "selected-building-marker" } : {}),
         }).addTo(layers);
-        marker.on("click", () => onSelectBuilding(b.bdg_egid));
+        marker.on("click", () => onSelectBuildingRef.current(b.bdg_egid));
         const popup = `<div style="font-size:13px;line-height:1.5;color:hsl(220,14%,14%);background:hsl(0 0% 100% / 0.97);padding:8px 12px;border-radius:6px;border:1px solid hsl(215 12% 85%);">
           <strong>EGID ${b.bdg_egid}</strong>
           ${b.stn_label ? `<br/>${b.stn_label} ${b.adr_number ?? ""}` : ""}
@@ -293,7 +296,7 @@ export default function MapView({
       roofLayerGroup.addTo(layers);
       try {
         const roofBounds = roofLayerGroup.getBounds();
-        if (roofBounds.isValid()) {
+        if (roofBounds.isValid() && egidJustChanged) {
           if (isSwitchingBuildings) {
             map.flyTo(roofBounds.getCenter(), Math.max(map.getZoom(), 17), { duration: 1.4, easeLinearity: 0.4 });
           } else {
@@ -302,7 +305,7 @@ export default function MapView({
         }
       } catch {}
     }
-  }, [cantonsGeo, selectedCantonGeo, gemeindenGeo, selectedGemeindeGeo, buildings, buildingRoofs, selectedEgid, onSelectBuilding, selectedPartIndex, onSelectPart]);
+  }, [cantonsGeo, selectedCantonGeo, gemeindenGeo, selectedGemeindeGeo, buildings, buildingRoofs, selectedEgid, selectedPartIndex, onSelectPart]);
 
   return (
     <div className="relative w-full h-full rounded-lg overflow-hidden border border-border shadow-card">
