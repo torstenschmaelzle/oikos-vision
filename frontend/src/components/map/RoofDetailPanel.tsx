@@ -210,6 +210,8 @@ export default function RoofDetailPanel({
                     return (
                       <button
                         key={part.objectid}
+                        type="button"
+                        aria-pressed={isSelected}
                         onClick={() => onSelectPart(isSelected ? null : i)}
                         className={`flex items-center gap-2.5 px-2 py-[7px] rounded w-full text-left transition-colors ${
                           isSelected
