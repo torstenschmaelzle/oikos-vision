@@ -1,0 +1,29 @@
+name: Deploy frontend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+
+jobs:
+  deploy:
+    name: Build & deploy frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy frontend to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            cd /home/ec2-user/oikos-vision
+            git pull
+            cd frontend
+            npm ci
+            npm run build
+            cp -r dist/* /var/www/oikos/
+            echo "Frontend deployed at $(date)"

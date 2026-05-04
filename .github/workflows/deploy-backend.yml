@@ -1,0 +1,29 @@
+name: Deploy backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+
+jobs:
+  deploy:
+    name: Deploy & restart backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy backend to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            cd /home/ec2-user/oikos-vision
+            git pull
+            cd backend
+            source venv/bin/activate
+            pip install -r requirements.txt -q
+            sudo systemctl restart oikos-api
+            echo "Backend deployed at $(date)"
