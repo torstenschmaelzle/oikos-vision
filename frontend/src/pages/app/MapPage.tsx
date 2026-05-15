@@ -1,4 +1,3 @@
-// trigger deploy
 import { useState, useEffect } from "react";
 import { useMapState } from "@/hooks/useMapState";
 import MapView from "@/components/map/MapView";
@@ -112,11 +111,6 @@ export default function MapPage() {
           selectedPartIndex={selectedPartIndex}
           onSelectPart={setSelectedPartIndex}
         />
-
-        {/* TODO: remove — deploy test banner */}
-        <div style={{position:"absolute",top:8,left:"50%",transform:"translateX(-50%)",background:"#22c55e",color:"#fff",padding:"4px 16px",borderRadius:8,fontSize:12,zIndex:9999,pointerEvents:"none"}}>
-          CI/CD deploy test ✓
-        </div>
 
         {/* Prev / Next arrows */}
         <AnimatePresence>
