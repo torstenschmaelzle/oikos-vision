@@ -191,7 +191,7 @@ flowchart TB
 **Data and operations**
 
 - **Database:** Amazon RDS for PostgreSQL 17 with PostGIS (about 80 GB) holds ~10 million roof surfaces plus buildings, addresses, boundaries and user accounts.
-- **Data loading:** The raw government datasets were uploaded to S3 and loaded into RDS by a Python pipeline (validation, unzipping, profiling, spatial joins), see [`data-pipeline/`](data-pipeline/).
+- **Data loading:** The raw government datasets were uploaded to S3 and loaded into RDS by Python scripts (validation, unzipping, profiling, spatial joins).
 - **Processes:** nginx and the API run as systemd services. The API writes rotating app, auth and error logs, which admins can read in the web app.
 - **Backups and migration:** Manual, encrypted RDS snapshots. I used them to move the database from the first region to Zurich and to keep a final copy when the environment was shut down.
 
@@ -262,11 +262,6 @@ All configuration is read from environment variables (see [`backend/.env.example
 │   ├── migrations/           # SQL migrations
 │   ├── tests/                # pytest integration tests
 │   └── requirements.txt
-├── data-pipeline/
-│   ├── upload_pipeline/      # download to S3, unzip
-│   ├── pipeline/             # generic GeoPackage → PostGIS loader
-│   ├── scripts/              # profiling, address import, spatial joins
-│   └── reports/              # dataset profiling reports
 ├── docs/screenshots/
 └── .github/workflows/        # CI (tests, build) + manual, CI-gated deploys to EC2
 ```

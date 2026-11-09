@@ -1,9 +1,0 @@
-boto3
-s3fs
-requests
-pandas
-geopandas
-shapely
-sqlalchemy
-psycopg2-binary
-tqdm
