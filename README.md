@@ -1,5 +1,8 @@
 # Oikos Solar
 
+[![CI](https://github.com/torstenschmaelzle/oikos-vision/actions/workflows/ci.yml/badge.svg)](https://github.com/torstenschmaelzle/oikos-vision/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 **Find the Swiss rooftops with the highest solar potential, down to the individual roof surface.**
 
 Oikos Solar is a map-based web platform for cantonal energy offices, municipalities and solar installers. It combines the federal roof-solar dataset (*Sonnendach / SOLKAT*) with the Swiss building register (*GWR*) and official boundaries, so a user can pick a canton and municipality, filter buildings by type, age, size or heating system, and immediately see which roofs offer the most energy, and how each roof surface contributes.
@@ -86,7 +89,8 @@ Solo project: I designed and built the whole platform.
 | **Database & GIS** | PostgreSQL + PostGIS (spatial joins, `ST_SimplifyPreserveTopology`, `ST_Transform` from LV95 to WGS84, GeoJSON output) |
 | **Auth & security** | JWT access tokens (python-jose), rotating refresh tokens in httpOnly cookies, bcrypt password hashing, role-based access, AWS Secrets Manager for DB credentials |
 | **Email** | Resend (invitation emails) |
-| **Infrastructure** | AWS EC2, RDS and Secrets Manager, nginx, systemd, GitHub Actions (SSH deploys) |
+| **Infrastructure** | AWS EC2, RDS and Secrets Manager, nginx, systemd |
+| **CI/CD** | GitHub Actions: tests and build on every push and pull request; manual deploys that rerun CI, ship the exact tested commit and roll back the backend if its health check fails |
 | **Testing** | Vitest + Testing Library (frontend), pytest integration tests (backend) |
 
 ---
@@ -190,7 +194,7 @@ All configuration is read from environment variables (see [`backend/.env.example
 │   ├── tests/                # pytest integration tests
 │   └── requirements.txt
 ├── docs/screenshots/
-└── .github/workflows/        # deploy frontend / backend to EC2
+└── .github/workflows/        # CI (tests, build) + manual, CI-gated deploys to EC2
 ```
 
 ---

@@ -1,29 +1,52 @@
 name: Deploy frontend
 
+# Manual only: the production server is currently offline.
+# Runs the full CI first and deploys the exact commit that passed it.
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'frontend/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: false
 
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
   deploy:
-    name: Build & deploy frontend
+    name: Deploy frontend to EC2
+    needs: ci
     runs-on: ubuntu-latest
+    environment: production
     steps:
-      - name: Deploy frontend to EC2
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist
+
+      - name: Upload build to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: dist/*
+          target: /tmp/oikos-frontend-${{ github.sha }}
+          strip_components: 1
+
+      - name: Swap release
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            set -e
-            cd /home/ec2-user/oikos-vision
-            git pull
-            cd frontend
-            npm ci
-            npm run build
-            cp -r dist/* /var/www/oikos/
-            echo "Frontend deployed at $(date)"
+            set -euo pipefail
+            # --delete removes files from older builds
+            rsync -a --delete /tmp/oikos-frontend-${{ github.sha }}/ /var/www/oikos/
+            rm -rf /tmp/oikos-frontend-${{ github.sha }}
+            echo "Frontend ${{ github.sha }} deployed at $(date)"

@@ -1,29 +1,50 @@
 name: Deploy backend
 
+# Manual only: the production server is currently offline.
+# Runs the full CI first and deploys the exact commit that passed it.
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'backend/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false
 
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
   deploy:
-    name: Deploy & restart backend
+    name: Deploy backend to EC2
+    needs: ci
     runs-on: ubuntu-latest
+    environment: production
     steps:
-      - name: Deploy backend to EC2
+      - name: Deploy, restart and health-check
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            set -e
+            set -euo pipefail
             cd /home/ec2-user/oikos-vision
-            git pull
+            PREVIOUS=$(git rev-parse HEAD)
+            git fetch --quiet origin
+            git checkout --quiet --detach ${{ github.sha }}
             cd backend
             source venv/bin/activate
-            pip install -r requirements.txt -q
+            pip install -q -r requirements.txt
             sudo systemctl restart oikos-api
-            echo "Backend deployed at $(date)"
+
+            # Roll back to the previous commit if the API does not come up healthy.
+            if ! curl -fsS --retry 10 --retry-delay 3 --retry-all-errors http://127.0.0.1:8000/api/health; then
+              echo "Health check failed, rolling back to $PREVIOUS"
+              git checkout --quiet --detach "$PREVIOUS"
+              pip install -q -r requirements.txt
+              sudo systemctl restart oikos-api
+              exit 1
+            fi
+            echo "Backend ${{ github.sha }} deployed at $(date)"
