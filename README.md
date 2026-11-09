@@ -35,9 +35,9 @@ Roof surfaces are aggregated per building (total summer/winter yield, total and 
 
 ---
 
-## My role
+## My role: Technical Lead
 
-Solo project: I designed and built the whole platform.
+As technical lead I owned the technical side of Oikos Solar end to end: architecture, data model, infrastructure and technology choices. I also wrote most of the code myself, from the data pipeline to the backend, frontend and deployment.
 
 - **Data engineering:** imported and joined SOLKAT roof surfaces, GWR building attributes and swissBOUNDARIES3D boundaries in PostgreSQL/PostGIS (~10 million roof surfaces), assigning every roof surface to its building, municipality and canton.
 - **Backend:** FastAPI service with GeoJSON endpoints, server-side GWR filtering, JWT auth with refresh-token rotation, role-based access, email invitations and an admin log/test-runner API. One query rewrite brought the filter-options endpoint from **~60 s to 94 ms**.
@@ -124,7 +124,7 @@ The hosting setup on AWS is described in the next section.
 
 ## AWS infrastructure
 
-I set up and ran the production environment on AWS myself. It went through two stages. The final setup ran in the **Zurich region (`eu-central-2`)**. The platform was built to work with cantons and municipalities and to integrate their own data later, so all data and processing had to stay in Switzerland. The environment has since been shut down; encrypted database snapshots were kept.
+I designed, set up and operated the production environment on AWS. It went through two stages. The final setup ran in the **Zurich region (`eu-central-2`)**. The platform was built to work with cantons and municipalities and to integrate their own data later, so all data and processing had to stay in Switzerland. The environment has since been shut down; encrypted database snapshots were kept.
 
 ```mermaid
 flowchart TB
