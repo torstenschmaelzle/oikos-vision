@@ -71,6 +71,9 @@ jobs:
       # Imports the FastAPI app and every router without touching the database.
       # The pytest suite in backend/tests needs a live server and database, so it
       # runs on the server via the admin test runner instead of here.
+      - name: Compile data pipeline
+        run: python -m compileall -q ../data-pipeline
+
       - name: Import app and list routes
         run: |
           python - <<'PY'
