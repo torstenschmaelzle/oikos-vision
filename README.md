@@ -136,7 +136,7 @@ The hosting setup on AWS is described in the next section.
 
 ## AWS infrastructure
 
-I designed, set up and operated the production environment on AWS. It went through two stages. The final setup ran in the **Zurich region (`eu-central-2`)**. The platform was built to work with cantons and municipalities and to integrate their own data later, so all data and processing had to stay in Switzerland. The environment has since been shut down; encrypted database snapshots were kept.
+I designed, set up and operated the production environment on AWS. It ran in the **Zurich region (`eu-central-2`)**. The platform was built to work with cantons and municipalities and to integrate their own data later, so all data and processing had to stay in Switzerland. The environment has since been shut down; encrypted database snapshots were kept.
 
 ```mermaid
 flowchart TB
@@ -193,11 +193,7 @@ flowchart TB
 - **Database:** Amazon RDS for PostgreSQL 17 with PostGIS (about 80 GB) holds ~10 million roof surfaces plus buildings, addresses, boundaries and user accounts.
 - **Data loading:** The raw government datasets were uploaded to S3 and loaded into RDS by Python scripts (validation, unzipping, profiling, spatial joins).
 - **Processes:** nginx and the API run as systemd services. The API writes rotating app, auth and error logs, which admins can read in the web app.
-- **Backups and migration:** Manual, encrypted RDS snapshots. I used them to move the database from the first region to Zurich and to keep a final copy when the environment was shut down.
-
-**First stage: Stockholm (`eu-north-1`)**
-
-The first version used a different design. The React build sat in a private S3 bucket that only CloudFront could read (Origin Access Control). A CloudFront distribution protected by AWS WAF served the app and forwarded `/api/*` to the EC2 instance. The RDS database ran in three dedicated private subnets: their route table had no route to the internet, so the database could only be reached from inside the VPC. The move to Zurich replaced CloudFront with the Application Load Balancer and the custom domain.
+- **Backups:** Manual, encrypted RDS snapshots, including a final copy kept when the environment was shut down.
 
 ---
 
