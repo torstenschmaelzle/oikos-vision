@@ -99,29 +99,19 @@ Solo project: I designed and built the whole platform.
 
 ```mermaid
 flowchart LR
-    subgraph Browser
-        SPA["React SPA<br/>Leaflet map · Three.js viewer"]
-    end
-
-    subgraph AWS
-        NGINX["nginx<br/>static files + reverse proxy"]
-        API["FastAPI (uvicorn, systemd)<br/>/api/cantons · /api/gemeinden<br/>/api/roofs · /api/auth · /api/admin"]
-        SM[("Secrets Manager<br/>DB credentials")]
-        DB[("PostgreSQL + PostGIS on RDS<br/>roof surfaces · GWR buildings<br/>boundaries · users")]
-    end
-
+    SPA["React SPA<br/>Leaflet map · Three.js viewer"]
+    API["FastAPI<br/>/api/cantons · /api/gemeinden<br/>/api/roofs · /api/auth · /api/admin"]
+    DB[("PostgreSQL + PostGIS<br/>roof surfaces · GWR buildings<br/>addresses · boundaries · users")]
     MAIL["Resend<br/>invitation emails"]
     OSM["OpenStreetMap tiles"]
-    GH["GitHub Actions"]
 
-    SPA -- "HTTPS, JWT bearer +<br/>httpOnly refresh cookie" --> NGINX
-    NGINX --> API
+    SPA -- "HTTPS, JWT bearer +<br/>httpOnly refresh cookie" --> API
     API --> DB
-    API -. "read once, cached" .-> SM
     API --> MAIL
     SPA --> OSM
-    GH -- "SSH deploy on push to main" --> NGINX
 ```
+
+The hosting setup on AWS is described in the next section.
 
 **How a request flows**
 
@@ -129,6 +119,73 @@ flowchart LR
 2. Choosing a canton or municipality fetches simplified GeoJSON boundaries; geometry is simplified server-side (PostGIS) with a different tolerance per map level, which keeps payloads small.
 3. `/api/roofs/top` returns the highest-yield buildings of a municipality, filtered server-side by the GWR query parameters.
 4. Selecting a building loads its individual roof surfaces (`/api/roofs/building/{egid}`), which are drawn on the map and extruded in the 3D viewer.
+
+---
+
+## AWS infrastructure
+
+I set up and ran the production environment on AWS myself. It went through two stages. The final setup ran in the **Zurich region (`eu-central-2`)** so that the data and the application stayed in Switzerland. The environment has since been shut down; encrypted database snapshots were kept.
+
+```mermaid
+flowchart TB
+    User(["User's browser"])
+
+    subgraph Global["Global services"]
+        R53["Route 53<br/>domain apioikosconsulting.com<br/>DNS alias records"]
+        ACM["AWS Certificate Manager<br/>TLS certificates, DNS-validated"]
+    end
+
+    subgraph Region["AWS eu-central-2 (Zurich) · VPC across 3 Availability Zones"]
+        ALB["Application Load Balancer<br/>HTTPS :443 only · TLS termination"]
+
+        subgraph App["EC2 (Amazon Linux) · security group: traffic from ALB only"]
+            NGINX["nginx :80<br/>static React build"]
+            UVI["Uvicorn + FastAPI :8000<br/>systemd service oikos-api"]
+        end
+
+        RDS[("RDS PostgreSQL 17 + PostGIS<br/>KMS-encrypted storage · TLS verify-full<br/>security group: EC2 only")]
+        SM["Secrets Manager<br/>DB password"]
+        S3B[("S3 backup bucket<br/>SSE encrypted · versioned<br/>public access blocked")]
+        VPCE["S3 gateway<br/>VPC endpoint"]
+    end
+
+    GH["GitHub Actions"]
+
+    User -- "DNS lookup" --> R53
+    User -- "HTTPS" --> ALB
+    ACM -. "certificate" .-> ALB
+    ALB -- "frontend target group (/)" --> NGINX
+    ALB -- "API target group (/health)" --> UVI
+    UVI -- "IAM instance role" --> SM
+    UVI -- "TLS :5432" --> RDS
+    App -- "private route" --> VPCE --> S3B
+    GH -- "SSH, CI-gated deploy" --> App
+```
+
+**Networking and traffic**
+
+- **Domain and DNS:** I registered the domain `apioikosconsulting.com` through Route 53. Alias records point `data.` (API) and `www.` (web app) at the load balancer.
+- **HTTPS:** TLS certificates from AWS Certificate Manager, validated through DNS records in Route 53. The Application Load Balancer listens only on port 443 and terminates TLS. Plain HTTP is never exposed to the internet.
+- **Load balancing:** The ALB spans several Availability Zones and forwards requests to two target groups: nginx serving the React build (port 80) and the FastAPI service (port 8000). Each target group has its own health check.
+
+**Security**
+
+- **Security groups as layers:** Only the ALB accepts traffic from the internet (443). The EC2 instance accepts web and API traffic only from the ALB's security group, and SSH only from a single admin IP. The database accepts port 5432 only from the application's security group.
+- **No credentials in code:** The EC2 instance uses an IAM instance role to read the database password from Secrets Manager at startup, so no AWS keys are stored on the server. Application secrets live in an environment file on the server, never in the repository.
+- **Encryption at rest:** RDS storage, database snapshots and S3 buckets are encrypted (KMS / SSE). The backup bucket is versioned and blocks all public access.
+- **Encryption in transit:** HTTPS from the browser to the ALB. The API connects to PostgreSQL with `sslmode=verify-full` against the Amazon RDS CA bundle. Refresh tokens are sent only as `httpOnly`, `Secure` cookies.
+- **Private S3 access:** An S3 gateway endpoint keeps traffic between the VPC and S3 on the AWS network.
+
+**Data and operations**
+
+- **Database:** Amazon RDS for PostgreSQL 17 with PostGIS (about 80 GB) holds ~10 million roof surfaces plus buildings, addresses, boundaries and user accounts.
+- **Data loading:** The raw government datasets were uploaded to S3 and loaded into RDS by a Python pipeline (validation, unzipping, spatial joins).
+- **Processes:** nginx and the API run as systemd services. The API writes rotating app, auth and error logs, which admins can read in the web app.
+- **Backups and migration:** Manual, encrypted RDS snapshots. I used them to move the database from the first region to Zurich and to keep a final copy when the environment was shut down.
+
+**First stage: Stockholm (`eu-north-1`)**
+
+The first version used a different design. The React build sat in a private S3 bucket that only CloudFront could read (Origin Access Control). A CloudFront distribution protected by AWS WAF served the app and forwarded `/api/*` to the EC2 instance. The RDS database ran in three dedicated private subnets: their route table had no route to the internet, so the database could only be reached from inside the VPC. The move to Zurich replaced CloudFront with the Application Load Balancer and the custom domain.
 
 ---
 
