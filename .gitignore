@@ -1,3 +1,24 @@
+# Dependencies & builds
+node_modules
+dist
+dist-ssr
+*.local
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+.pytest_cache/
+backend/test_artifacts/
+
+# Secrets & environment (never commit)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
 # Logs
 logs
 *.log
@@ -7,12 +28,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# Editor / OS / tooling
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -22,4 +38,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-backend/.claude/
+.claude/

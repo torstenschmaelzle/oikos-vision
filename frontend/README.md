@@ -1,11 +1,10 @@
-# Oiko Solar
+# Oikos Solar – Frontend
 
-Admin platform for Oiko Solar.
+React + TypeScript + Vite single-page app. See the [main README](../README.md) for the project overview, architecture and setup.
 
-## Technologies
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```bash
+npm install
+npm run dev    # http://localhost:8080
+npm test       # Vitest
+npm run build
+```
