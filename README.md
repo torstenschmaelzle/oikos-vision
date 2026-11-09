@@ -9,6 +9,19 @@ Oikos Solar is a map-based web platform for cantonal energy offices, municipalit
 
 ![Roof detail view: selected building in Zug with per-surface yields and 3D roof model](docs/screenshots/roof-detail.jpg)
 
+## Contents
+
+- [Mission](#mission)
+- [Data](#data)
+- [My role](#my-role)
+- [Features](#features)
+- [Tech stack](#tech-stack)
+- [Architecture](#architecture)
+- [AWS infrastructure](#aws-infrastructure)
+- [Getting started](#getting-started)
+- [Project structure](#project-structure)
+- [License](#license)
+
 ---
 
 ## Mission
@@ -35,14 +48,13 @@ Roof surfaces are aggregated per building (total summer/winter yield, total and 
 
 ---
 
-## My role: Technical Lead
+## My role
 
-As technical lead I owned the technical side of Oikos Solar end to end: architecture, data model, infrastructure and technology choices. I also wrote most of the code myself, from the data pipeline to the backend, frontend and deployment.
+Technical lead, responsible for architecture, data, infrastructure and delivery.
 
-- **Data engineering:** imported and joined SOLKAT roof surfaces, GWR building attributes and swissBOUNDARIES3D boundaries in PostgreSQL/PostGIS (~10 million roof surfaces), assigning every roof surface to its building, municipality and canton (see [`data-pipeline/`](data-pipeline/)).
-- **Backend:** FastAPI service with GeoJSON endpoints, server-side GWR filtering, JWT auth with refresh-token rotation, role-based access, email invitations and an admin log/test-runner API. One query rewrite brought the filter-options endpoint from **~60 s to 94 ms**.
-- **Frontend:** React/TypeScript app. I generated the initial UI scaffold with [Lovable](https://lovable.dev) and then built the core features myself: interactive Leaflet map navigation, GWR filters, the roof detail panel, the Three.js 3D roof viewer and roof-part selection synced between map and 3D view.
-- **Infrastructure:** AWS (EC2, RDS, Secrets Manager), nginx, systemd, and GitHub Actions deploys for frontend and backend.
+- **Data:** selected and mapped the federal datasets, brought the raw data (~15 GB) into AWS and designed the PostGIS data model for ~10 million roof surfaces.
+- **Architecture:** chose the stack and designed how database, API and web app work together.
+- **Infrastructure:** set up and ran the production environment on AWS: network, load balancer, own domain with HTTPS, encrypted database and CI/CD (see [AWS infrastructure](#aws-infrastructure)).
 
 ---
 
@@ -117,7 +129,7 @@ The hosting setup on AWS is described in the next section.
 
 1. On load, the SPA silently refreshes its session (httpOnly refresh cookie → short-lived access token kept in memory only).
 2. Choosing a canton or municipality fetches simplified GeoJSON boundaries; geometry is simplified server-side (PostGIS) with a different tolerance per map level, which keeps payloads small.
-3. `/api/roofs/top` returns the highest-yield buildings of a municipality, filtered server-side by the GWR query parameters.
+3. `/api/roofs/top` returns the highest-yield buildings of a municipality, filtered server-side by the GWR query parameters. Rewriting the filter query so PostgreSQL uses its index brought the filter options from ~60 s to 94 ms.
 4. Selecting a building loads its individual roof surfaces (`/api/roofs/building/{egid}`), which are drawn on the map and extruded in the 3D viewer.
 
 ---
