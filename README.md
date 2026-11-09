@@ -6,9 +6,6 @@ Oikos Solar is a map-based web platform for cantonal energy offices, municipalit
 
 ![Roof detail view: selected building in Zug with per-surface yields and 3D roof model](docs/screenshots/roof-detail.jpg)
 
-> [!NOTE]
-> The production backend ran on AWS and has since been shut down. The screenshots were taken with the real frontend against a local mock API, using real canton and municipality boundaries and OpenStreetMap building footprints. **The energy figures, addresses and building attributes shown are synthetic.**
-
 ---
 
 ## Mission
