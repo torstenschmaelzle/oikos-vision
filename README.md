@@ -124,7 +124,7 @@ The hosting setup on AWS is described in the next section.
 
 ## AWS infrastructure
 
-I set up and ran the production environment on AWS myself. It went through two stages. The final setup ran in the **Zurich region (`eu-central-2`)** so that the data and the application stayed in Switzerland. The environment has since been shut down; encrypted database snapshots were kept.
+I set up and ran the production environment on AWS myself. It went through two stages. The final setup ran in the **Zurich region (`eu-central-2`)**. The platform was built to work with cantons and municipalities and to integrate their own data later, so all data and processing had to stay in Switzerland. The environment has since been shut down; encrypted database snapshots were kept.
 
 ```mermaid
 flowchart TB
